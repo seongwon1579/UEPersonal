@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Project/Public/Characters/WarriorBaseCharacter.h"
+#include "Characters/WarriorBaseCharacter.h"
 
 // Sets default values
 AWarriorBaseCharacter::AWarriorBaseCharacter()

@@ -1,5 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Project/Public/Characters/WarriorHeroCharacter.h"
+#include "Characters/WarriorHeroCharacter.h"
+#include "WarriorDebugHelper.h"
 
+void AWarriorHeroCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	Debug::Print("Hello");
+}

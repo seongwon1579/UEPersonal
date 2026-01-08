@@ -1,7 +1,13 @@
 #pragma once
 
-class WarriorDebugHelper
+namespace Debug
 {
-public:
-	
-};
+	static void Print(const FString& Msg, const FColor& Color = FColor::Blue, int32 InKey = -1)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(InKey, 7.f, Color, Msg);
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *Msg);
+		}
+	}
+}

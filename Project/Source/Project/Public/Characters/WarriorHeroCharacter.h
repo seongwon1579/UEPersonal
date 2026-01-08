@@ -13,5 +13,5 @@ UCLASS()
 class PROJECT_API AWarriorHeroCharacter : public AWarriorBaseCharacter
 {
 	GENERATED_BODY()
-	
+	void BeginPlay() override;	
 };
