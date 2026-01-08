@@ -69,6 +69,8 @@ Saved/*
 
 # Compiled source files for the engine to use
 Intermediate/*
+Content/Characters/*
+Content/ThirdPerson/*
 Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
