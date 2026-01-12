@@ -1,0 +1,19 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "FRoadPavement.h"
+#include "FRoadSegment.h"
+#include "Engine/DataTable.h"
+#include "FRoadProperties.generated.h" 
+
+USTRUCT(BlueprintType)
+struct FRoadProperties : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Road")
+	FRoadPavement RoadPavement;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Road")
+	FRoadSegment RoadSegment;
+};

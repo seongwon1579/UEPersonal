@@ -22,8 +22,11 @@ public:
 	USplineComponent* SplineComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline")
 	TArray<USplineMeshComponent*> SplineMeshComponents;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline")
-	UStaticMesh* RoadMesh; 
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline")
+	// UStaticMesh* RoadMesh; 
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DataTable")
+	FDataTableRowHandle RoadDataHandle;
 	
 public:	
 	// Sets default values for this actor's properties
