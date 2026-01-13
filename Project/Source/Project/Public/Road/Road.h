@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Road.generated.h"
 
+struct FRoadProperties;
 class USplineMeshComponent;
 class USplineComponent;
 class USceneComponent;
@@ -27,6 +28,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DataTable")
 	FDataTableRowHandle RoadDataHandle;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RoadSegment")
+	TArray<FRoadProperties> Roads;
 	
 public:	
 	// Sets default values for this actor's properties

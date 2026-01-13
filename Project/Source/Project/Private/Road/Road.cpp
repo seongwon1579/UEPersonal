@@ -44,6 +44,7 @@ void ARoad::OnConstruction(const FTransform& Transform)
 		}
 	}
 	SplineMeshComponents.Empty();
+	Roads.Empty();
 	
 	FRoadProperties* RoadData = RoadDataHandle.GetRow<FRoadProperties>(TEXT("Road Data Context"));
 	
@@ -52,7 +53,6 @@ void ARoad::OnConstruction(const FTransform& Transform)
 		UE_LOG(LogTemp, Warning, TEXT("No Road Data Context"));
 		return;
 	}
-	
 	
 	// 스플라인 갯수
 	float SplineLength = SplineComponent->GetSplineLength();
@@ -65,6 +65,8 @@ void ARoad::OnConstruction(const FTransform& Transform)
 
 	for (int32 i = 0; i < Count + 1; i++)
 	{
+		Roads.Add(*RoadData);
+		
 		FName MeshName = *FString::Printf(TEXT("SplineMesh_%d"), i);
 		USplineMeshComponent* NewMesh = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass(), MeshName);
 
