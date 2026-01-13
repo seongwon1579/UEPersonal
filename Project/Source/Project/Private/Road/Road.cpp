@@ -44,65 +44,37 @@ void ARoad::OnConstruction(const FTransform& Transform)
 		}
 	}
 	SplineMeshComponents.Empty();
-	Roads.Empty();
 	
-	FRoadProperties* RoadData = RoadDataHandle.GetRow<FRoadProperties>(TEXT("Road Data Context"));
-	
-	if (!RoadData)
+	FRoadProperties* DefaultProperty = RoadDataHandle.GetRow<FRoadProperties>(TEXT("Road Data Context"));
+
+	if (!DefaultProperty )
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No Road Data Context"));
 		return;
 	}
-	
+
 	// 스플라인 갯수
 	float SplineLength = SplineComponent->GetSplineLength();
-	
+
 	// 현재 메시의 X 방향의 길이(피벗이 중앙에서의 x길이를 반환하므로 2배 적용
-	float meshXLenght = RoadData->RoadPavement.RoadMesh->GetBounds().BoxExtent.X * 2;
+	float meshXLenght = DefaultProperty->RoadPavement.RoadMesh->GetBounds().BoxExtent.X * 2;
+
+	// Spline의 길이에 현재 할당된 메시의 길이(마지막 메시가 meshXLenght보가 짧은경우까지 고려하여 올림처리)
+	int Count = FMath::CeilToInt(SplineLength / meshXLenght);
+
+	RefreshRoadProperties(DefaultProperty , Count);
 	
-	// Spline의 길이에 현재 할당된 메시의 길이
-	int Count = SplineLength / meshXLenght;	
-
-	for (int32 i = 0; i < Count + 1; i++)
+	for (int32 i = 0; i < RoadProperties.Num(); i++)
 	{
-		Roads.Add(*RoadData);
-		
 		FName MeshName = *FString::Printf(TEXT("SplineMesh_%d"), i);
-		USplineMeshComponent* NewMesh = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass(), MeshName);
-
-		// 메시가 움직일 수 있도록 한다.
-		NewMesh->SetMobility(EComponentMobility::Movable);
-		// 에디터 관리
-		NewMesh->CreationMethod = EComponentCreationMethod::UserConstructionScript;
-        
-		NewMesh->SetupAttachment(SplineComponent);
-		NewMesh->SetStaticMesh(RoadData->RoadPavement.RoadMesh);
-		NewMesh->SetForwardAxis(ESplineMeshAxis::X);
-		NewMesh->RegisterComponent();
-		
-		// FVector StartPos = SplineComponent->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::Local);
-		// FVector StartTangent = SplineComponent->GetLeaveTangentAtSplinePoint(i, ESplineCoordinateSpace::Local);
-		// FVector EndPos = SplineComponent->GetLocationAtSplinePoint(i + 1, ESplineCoordinateSpace::Local);
-		// FVector EndTangent = SplineComponent->GetArriveTangentAtSplinePoint(i + 1, ESplineCoordinateSpace::Local);
-		
-		// 일단 하드 코딩, 메시의 길이, 1000은 탄젠트 길이(각 세그먼트의 길이)
-		FVector StartPos = SplineComponent->GetLocationAtDistanceAlongSpline(i * meshXLenght, ESplineCoordinateSpace::Local);
-		FVector StartTangent = SplineComponent->GetDirectionAtDistanceAlongSpline(i * meshXLenght, ESplineCoordinateSpace::Local) * 1000;
-		FVector EndPos = SplineComponent->GetLocationAtDistanceAlongSpline(i * meshXLenght + meshXLenght, ESplineCoordinateSpace::Local);
-		FVector EndTangent = SplineComponent->GetDirectionAtDistanceAlongSpline(i * meshXLenght + meshXLenght, ESplineCoordinateSpace::Local) * 1000;
-
-		NewMesh->SetStartAndEnd(StartPos, StartTangent, EndPos, EndTangent, true);
-		
-		// 메시 컴포넌트 롤링
-		NewMesh->SetStartRollDegrees(RoadData->RoadSegment.BeginRoll);
-		NewMesh->SetEndRollDegrees(RoadData->RoadSegment.EndRoll);
-        
-		
+		USplineMeshComponent* NewMesh = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass(),
+		                                                                MeshName);
+		SetupSplineMesh(i, NewMesh, RoadProperties[i]);
 		SplineMeshComponents.Add(NewMesh);
 	}
 }
 
-// Called when the game starts or when spawned
+#pragma region Framework
 void ARoad::BeginPlay()
 {
 	Super::BeginPlay();
@@ -113,3 +85,51 @@ void ARoad::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
+#pragma endregion
+
+#pragma region Private Methods
+void ARoad::RefreshRoadProperties(const FRoadProperties* DefaultProperty, int Count)
+{
+	// road mesh를 늘리면 default 추가
+	while (RoadProperties.Num() < Count)
+	{
+		RoadProperties.Add(*DefaultProperty);
+	}
+	// road mesh를 줄이면 뒤에서 부터 삭제
+	int32 ToRemove = RoadProperties.Num() - Count;
+	RoadProperties.RemoveAt(Count, ToRemove);
+}
+
+void ARoad::SetupSplineMesh(int32 Index, USplineMeshComponent* TargetMeshComponent, FRoadProperties RoadProperty)
+{
+	float meshXLenght = RoadProperty.RoadPavement.RoadMesh->GetBounds().BoxExtent.X * 2;
+
+	FName MeshName = *FString::Printf(TEXT("SplineMesh_%d"), Index);
+	USplineMeshComponent* NewMesh = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass(), MeshName);
+
+	// 메시가 움직일 수 있도록 한다.
+	NewMesh->SetMobility(EComponentMobility::Movable);
+	// 에디터 관리
+	NewMesh->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+	NewMesh->SetupAttachment(SplineComponent);
+	NewMesh->SetStaticMesh(RoadProperty.RoadPavement.RoadMesh);
+	NewMesh->SetForwardAxis(ESplineMeshAxis::X);
+	NewMesh->RegisterComponent();
+	
+	// 일단 하드 코딩, 메시의 길이, 1000은 탄젠트 길이(각 세그먼트의 길이)
+	FVector StartPos = SplineComponent->GetLocationAtDistanceAlongSpline(
+		Index * meshXLenght, ESplineCoordinateSpace::Local);
+	FVector StartTangent = SplineComponent->GetDirectionAtDistanceAlongSpline(
+		Index * meshXLenght, ESplineCoordinateSpace::Local) * 1000;
+	FVector EndPos = SplineComponent->GetLocationAtDistanceAlongSpline(Index * meshXLenght + meshXLenght,
+	                                                                   ESplineCoordinateSpace::Local);
+	FVector EndTangent = SplineComponent->GetDirectionAtDistanceAlongSpline(
+		Index * meshXLenght + meshXLenght, ESplineCoordinateSpace::Local) * 1000;
+
+	NewMesh->SetStartAndEnd(StartPos, StartTangent, EndPos, EndTangent, true);
+
+	// 메시 컴포넌트 롤링
+	NewMesh->SetStartRollDegrees(RoadProperty.RoadSegment.BeginRoll);
+	NewMesh->SetEndRollDegrees(RoadProperty.RoadSegment.EndRoll);
+}
+#pragma endregion

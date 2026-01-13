@@ -16,23 +16,22 @@ UCLASS()
 class PROJECT_API ARoad : public AActor
 {
 	GENERATED_BODY()
+
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=  "Scene")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Scene")
 	USceneComponent* DefaultSceneComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline");
 	USplineComponent* SplineComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline")
 	TArray<USplineMeshComponent*> SplineMeshComponents;
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline")
-	// UStaticMesh* RoadMesh; 
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DataTable")
 	FDataTableRowHandle RoadDataHandle;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RoadSegment")
-	TArray<FRoadProperties> Roads;
-	
-public:	
+	TArray<FRoadProperties> RoadProperties;
+
+public:
 	// Sets default values for this actor's properties
 	ARoad();
 	virtual void OnConstruction(const FTransform& Transform) override;
@@ -41,8 +40,15 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	
+#pragma region Private
+private:
+	void RefreshRoadProperties(const FRoadProperties* DefaultProperty, int Count);
+	void SetupSplineMesh(int32 Index ,USplineMeshComponent* TargetMeshComponent, FRoadProperties RoadProperty);
+	
+#pragma endregion
 };
