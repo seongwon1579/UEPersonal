@@ -48,7 +48,8 @@ public:
 #pragma region Private
 private:
 	void RefreshRoadProperties(const FRoadProperties* DefaultProperty, int Count);
-	void SetupSplineMesh(int32 Index ,USplineMeshComponent* TargetMeshComponent, FRoadProperties RoadProperty);
 	
+	void SetupSplineMesh(int32 Index ,USplineMeshComponent* TargetMeshComponent, UStaticMesh* StaticMesh, float MeshLenght);
+	void RollSplineMesh(USplineMeshComponent* TargetMeshComponent, float BeginRoll, float EndRoll);
 #pragma endregion
 };

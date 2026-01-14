@@ -1,0 +1,26 @@
+[
+	{
+		"Name": "1way",
+		"RoadPavement":
+		{
+			"RoadMesh": "/Script/Engine.StaticMesh'/Game/PRSEssentials/Meshes/ModularRoads/Roads/1Way/SM_1Way_Road.SM_1Way_Road'"
+		},
+		"RoadSegment":
+		{
+			"BeginRoll": 10,
+			"EndRoll": 10
+		}
+	},
+	{
+		"Name": "2way",
+		"RoadPavement":
+		{
+			"RoadMesh": "/Script/Engine.StaticMesh'/Game/PRSEssentials/Meshes/ModularRoads/Roads/2Way/SM_2Way_Road.SM_2Way_Road'"
+		},
+		"RoadSegment":
+		{
+			"BeginRoll": 0,
+			"EndRoll": 0
+		}
+	}
+]

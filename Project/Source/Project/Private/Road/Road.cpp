@@ -47,12 +47,8 @@ void ARoad::OnConstruction(const FTransform& Transform)
 	
 	FRoadProperties* DefaultProperty = RoadDataHandle.GetRow<FRoadProperties>(TEXT("Road Data Context"));
 
-	if (!DefaultProperty )
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No Road Data Context"));
-		return;
-	}
-
+	if (!DefaultProperty ) return;
+	
 	// 스플라인 갯수
 	float SplineLength = SplineComponent->GetSplineLength();
 
@@ -64,13 +60,41 @@ void ARoad::OnConstruction(const FTransform& Transform)
 
 	RefreshRoadProperties(DefaultProperty , Count);
 	
-	for (int32 i = 0; i < RoadProperties.Num(); i++)
+	int32 Index = 0;
+	for (auto RoadProperty : RoadProperties)
 	{
-		FName MeshName = *FString::Printf(TEXT("SplineMesh_%d"), i);
-		USplineMeshComponent* NewMesh = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass(),
-		                                                                MeshName);
-		SetupSplineMesh(i, NewMesh, RoadProperties[i]);
+		//FName MeshName = *FString::Printf(TEXT("SplineMesh_%d"), index);
+		USplineMeshComponent* NewMesh = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass());
+		
+		// 기본 road mesh 세팅
+		SetupSplineMesh(Index, NewMesh, RoadProperty.RoadPavement.RoadMesh, meshXLenght);
+		RollSplineMesh(NewMesh, RoadProperty.RoadSegment.BeginRoll, RoadProperty.RoadSegment.EndRoll);
 		SplineMeshComponents.Add(NewMesh);
+		
+		
+		if (RoadProperty.RoadSideWalk.IsValid())
+		{
+			if (RoadProperty.RoadSideWalk.bNeed_LeftSideWalk)
+			{
+				USplineMeshComponent* LeftSideMesh = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass());
+				SetupSplineMesh(Index, LeftSideMesh, RoadProperty.RoadSideWalk.Left_RoadSideWalk, meshXLenght);
+				RollSplineMesh(LeftSideMesh, RoadProperty.RoadSegment.BeginRoll, RoadProperty.RoadSegment.EndRoll);
+				// LeftSideMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				// LeftSideMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility,ECollisionResponse::ECR_Block);
+				
+				SplineMeshComponents.Add(LeftSideMesh);
+			}
+			if (RoadProperty.RoadSideWalk.bNeed_RightSideWalk)
+			{
+				USplineMeshComponent* RightSideMesh = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass());
+				SetupSplineMesh(Index, RightSideMesh, RoadProperty.RoadSideWalk.Right_RoadSideWalk, meshXLenght);
+				RollSplineMesh(RightSideMesh, RoadProperty.RoadSegment.BeginRoll, RoadProperty.RoadSegment.EndRoll);
+				// RightSideMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				// RightSideMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility,ECollisionResponse::ECR_Block);
+				SplineMeshComponents.Add(RightSideMesh);
+			}
+		}
+		Index++;
 	}
 }
 
@@ -100,36 +124,46 @@ void ARoad::RefreshRoadProperties(const FRoadProperties* DefaultProperty, int Co
 	RoadProperties.RemoveAt(Count, ToRemove);
 }
 
-void ARoad::SetupSplineMesh(int32 Index, USplineMeshComponent* TargetMeshComponent, FRoadProperties RoadProperty)
+void ARoad::SetupSplineMesh(int32 Index ,USplineMeshComponent* TargetMeshComponent, UStaticMesh* StaticMesh, float MeshLenght)
 {
-	float meshXLenght = RoadProperty.RoadPavement.RoadMesh->GetBounds().BoxExtent.X * 2;
-
-	FName MeshName = *FString::Printf(TEXT("SplineMesh_%d"), Index);
-	USplineMeshComponent* NewMesh = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass(), MeshName);
-
+	if (TargetMeshComponent == nullptr ) return;
+	
 	// 메시가 움직일 수 있도록 한다.
-	NewMesh->SetMobility(EComponentMobility::Movable);
+	TargetMeshComponent->SetMobility(EComponentMobility::Movable);
 	// 에디터 관리
-	NewMesh->CreationMethod = EComponentCreationMethod::UserConstructionScript;
-	NewMesh->SetupAttachment(SplineComponent);
-	NewMesh->SetStaticMesh(RoadProperty.RoadPavement.RoadMesh);
-	NewMesh->SetForwardAxis(ESplineMeshAxis::X);
-	NewMesh->RegisterComponent();
+	TargetMeshComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+	TargetMeshComponent->SetupAttachment(SplineComponent);
+	TargetMeshComponent->SetStaticMesh(StaticMesh);
+	TargetMeshComponent->SetForwardAxis(ESplineMeshAxis::X);
 	
 	// 일단 하드 코딩, 메시의 길이, 1000은 탄젠트 길이(각 세그먼트의 길이)
 	FVector StartPos = SplineComponent->GetLocationAtDistanceAlongSpline(
-		Index * meshXLenght, ESplineCoordinateSpace::Local);
+		Index * MeshLenght, ESplineCoordinateSpace::Local);
 	FVector StartTangent = SplineComponent->GetDirectionAtDistanceAlongSpline(
-		Index * meshXLenght, ESplineCoordinateSpace::Local) * 1000;
-	FVector EndPos = SplineComponent->GetLocationAtDistanceAlongSpline(Index * meshXLenght + meshXLenght,
+		Index * MeshLenght, ESplineCoordinateSpace::Local) * 1000;
+	FVector EndPos = SplineComponent->GetLocationAtDistanceAlongSpline(Index * MeshLenght + MeshLenght,
 	                                                                   ESplineCoordinateSpace::Local);
 	FVector EndTangent = SplineComponent->GetDirectionAtDistanceAlongSpline(
-		Index * meshXLenght + meshXLenght, ESplineCoordinateSpace::Local) * 1000;
+		Index * MeshLenght + MeshLenght, ESplineCoordinateSpace::Local) * 1000;
+	
+	TargetMeshComponent->SetStartAndEnd(StartPos, StartTangent, EndPos, EndTangent, true);
+	
+	TargetMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//TargetMeshComponent->SetCollisionProfileName(UCollisionProfile::BlockAll_ProfileName);
+	TargetMeshComponent->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
+	
+	
+	TargetMeshComponent->UpdateMesh();
+	// 등록은 모든 세팅이 끝나고 해야 한다(콜리전 세팅을 하기전에 등록하면 반영 안됨)
+	TargetMeshComponent->RegisterComponent();
+	
+}
 
-	NewMesh->SetStartAndEnd(StartPos, StartTangent, EndPos, EndTangent, true);
-
-	// 메시 컴포넌트 롤링
-	NewMesh->SetStartRollDegrees(RoadProperty.RoadSegment.BeginRoll);
-	NewMesh->SetEndRollDegrees(RoadProperty.RoadSegment.EndRoll);
+void ARoad::RollSplineMesh(USplineMeshComponent* TargetMeshComponent, float BeginRoll, float EndRoll)
+{
+	if (TargetMeshComponent == nullptr) return;
+	
+	TargetMeshComponent->SetStartRollDegrees(BeginRoll);
+	TargetMeshComponent->SetEndRollDegrees(EndRoll);
 }
 #pragma endregion
