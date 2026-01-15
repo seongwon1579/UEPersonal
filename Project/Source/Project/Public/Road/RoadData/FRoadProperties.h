@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "FRoadPavement.h"
+#include "FRoadRail.h"
 #include "FRoadSegment.h"
 #include "FRoadSideWalk.h"
 #include "Engine/DataTable.h"
@@ -19,4 +20,7 @@ public:
 	FRoadSegment RoadSegment;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Road")
 	FRoadSideWalk RoadSideWalk;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Road")
+	FRoadRail RoadRail;
+	
 };

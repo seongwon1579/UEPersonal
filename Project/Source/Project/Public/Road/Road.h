@@ -16,40 +16,36 @@ UCLASS()
 class PROJECT_API ARoad : public AActor
 {
 	GENERATED_BODY()
-
+	
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Scene")
-	USceneComponent* DefaultSceneComponent;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline");
-	USplineComponent* SplineComponent;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline")
-	TArray<USplineMeshComponent*> SplineMeshComponents;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DataTable")
-	FDataTableRowHandle RoadDataHandle;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RoadSegment")
-	TArray<FRoadProperties> RoadProperties;
-
-public:
-	// Sets default values for this actor's properties
 	ARoad();
 	virtual void OnConstruction(const FTransform& Transform) override;
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	
 #pragma region Private
 private:
+	void SetupSplineComponent();
+	void ClearRoadMeshes();
+	void UpdateRoadMeshes(const FRoadProperties* RoadProperties);
 	void RefreshRoadProperties(const FRoadProperties* DefaultProperty, int Count);
-	
+	void CreateSplineMesh(int32 Index, UStaticMesh* StaticMesh, float BeginRoll, float EndRoll, float MeshLenght);
 	void SetupSplineMesh(int32 Index ,USplineMeshComponent* TargetMeshComponent, UStaticMesh* StaticMesh, float MeshLenght);
 	void RollSplineMesh(USplineMeshComponent* TargetMeshComponent, float BeginRoll, float EndRoll);
 #pragma endregion
+
+protected:
+	USceneComponent* DefaultSceneComponent;
+	USplineComponent* SplineComponent;
+	TArray<USplineMeshComponent*> SplineMeshComponents;
+	
+	// Spline Data
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SplineData")
+	FDataTableRowHandle RoadDataHandle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SplineData")
+	TArray<FRoadProperties> RoadProperties;
+	
+	// Trigger
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Trigger")
+	bool bShowSplineOnly;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Trigger")
+	bool bShowRoadOnly;
 };

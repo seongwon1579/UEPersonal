@@ -9,6 +9,13 @@
 		{
 			"BeginRoll": 10,
 			"EndRoll": 10
+		},
+		"RoadSideWalk":
+		{
+			"Left_RoadSideWalk": "None",
+			"Right_RoadSideWalk": "None",
+			"bNeed_LeftSideWalk": false,
+			"bNeed_RightSideWalk": false
 		}
 	},
 	{
@@ -21,6 +28,51 @@
 		{
 			"BeginRoll": 0,
 			"EndRoll": 0
+		},
+		"RoadSideWalk":
+		{
+			"Left_RoadSideWalk": "None",
+			"Right_RoadSideWalk": "None",
+			"bNeed_LeftSideWalk": false,
+			"bNeed_RightSideWalk": false
+		}
+	},
+	{
+		"Name": "1waySideWalk",
+		"RoadPavement":
+		{
+			"RoadMesh": "/Script/Engine.StaticMesh'/Game/PRSEssentials/Meshes/ModularRoads/Roads/1Way/SM_1Way_Road.SM_1Way_Road'"
+		},
+		"RoadSegment":
+		{
+			"BeginRoll": 0,
+			"EndRoll": 0
+		},
+		"RoadSideWalk":
+		{
+			"Left_RoadSideWalk": "/Script/Engine.StaticMesh'/Game/PRSEssentials/Meshes/ModularRoads/Roads/1Way/SM_1Way_Sidewalk_Left.SM_1Way_Sidewalk_Left'",
+			"Right_RoadSideWalk": "/Script/Engine.StaticMesh'/Game/PRSEssentials/Meshes/ModularRoads/Roads/1Way/SM_1Way_Sidewalk_Right.SM_1Way_Sidewalk_Right'",
+			"bNeed_LeftSideWalk": true,
+			"bNeed_RightSideWalk": true
+		}
+	},
+	{
+		"Name": "2waySideWalk",
+		"RoadPavement":
+		{
+			"RoadMesh": "/Script/Engine.StaticMesh'/Game/PRSEssentials/Meshes/ModularRoads/Roads/2Way/SM_2Way_Road.SM_2Way_Road'"
+		},
+		"RoadSegment":
+		{
+			"BeginRoll": 0,
+			"EndRoll": 0
+		},
+		"RoadSideWalk":
+		{
+			"Left_RoadSideWalk": "/Script/Engine.StaticMesh'/Game/PRSEssentials/Meshes/ModularRoads/Roads/2Way/SM_2Way_Sidewalk_Left.SM_2Way_Sidewalk_Left'",
+			"Right_RoadSideWalk": "/Script/Engine.StaticMesh'/Game/PRSEssentials/Meshes/ModularRoads/Roads/2Way/SM_2Way_Sidewalk_Right.SM_2Way_Sidewalk_Right'",
+			"bNeed_LeftSideWalk": true,
+			"bNeed_RightSideWalk": true
 		}
 	}
 ]
