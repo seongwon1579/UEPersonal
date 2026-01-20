@@ -46,8 +46,8 @@ private:
 	APlayerController* PlayerController;
 	
 	bool bIsEditing = false;
-	bool bIsPlacing = false;
-	float CurrentRotation = 0.f;
+	bool bIsNewPlacing = false;
+	float CurrentRotationExtent = 0.f;
 	float LastEditStartTime;
 	FTimerHandle PlacementTimerHandle;
 	FTransform PrevTransform;

@@ -11,31 +11,27 @@ class PROJECT_API AHomeGoods : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
+public:
+	bool CanBeSelected() const { return bIsSelectable; }
+	void CheckSpawn();
+	void Place();
+	void StartEditing();
+	bool CanSpawn() const { return bCanSpawn;}
+
+private:	
 	// Sets default values for this actor's properties
 	AHomeGoods();
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* StaticMeshComponent;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Materials",meta = (AllowPrivateAccess = "true"))
 	UMaterialInterface* Material_Green;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Materials",meta = (AllowPrivateAccess = "true"))
 	UMaterialInterface* Material_Red;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Materials",meta = (AllowPrivateAccess = "true"))
 	UMaterialInterface* Material_Target;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DebugMode",meta = (AllowPrivateAccess = "true"))
+	bool bDebugMode = false;
 	
-	UPROPERTY(BlueprintReadOnly, Category = "Placement")
 	bool bIsSelectable = false;  
-	UFUNCTION(BlueprintCallable, Category = "Placement")
-	bool CanBeSelected() const { return bIsSelectable; }
-
-	UFUNCTION(BlueprintCallable, Category = "Placement")
-	void StartEditing();  // 추가
-	
-	
 	bool bCanSpawn;
-	void CheckSpawn();
-	
-	UFUNCTION(BlueprintCallable, Category = "Spawning")
-	void Place();
-
 };

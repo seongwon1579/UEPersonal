@@ -27,17 +27,16 @@ UObjectPlacementComponent::UObjectPlacementComponent()
 
 void UObjectPlacementComponent::RotatePlacement(float Direction)
 {
-	//if (!bIsPlacing || !HomeGoods) return;
 	if (!bIsEditing || !HomeGoods) return;
 
-	CurrentRotation += RotationSpeed * Direction;
-	HomeGoods->SetActorRotation(FRotator(0.f, CurrentRotation, 0.f));
+	CurrentRotationExtent += RotationSpeed * Direction;
+	HomeGoods->SetActorRotation(FRotator(0.f, CurrentRotationExtent, 0.f));
 }
 
 void UObjectPlacementComponent::TrySelectObject()
 {
 	if (bIsEditing || !PlayerController) return;
-
+	
 	FVector WorldLocation, WorldDirection;
 	PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
 
@@ -53,14 +52,15 @@ void UObjectPlacementComponent::TrySelectObject()
 
 		if (SelectedGoods && SelectedGoods->CanBeSelected())
 		{
-			//bIsPlacing = true;
 			bIsEditing = true;
+			bIsNewPlacing = false;
 			LastEditStartTime = GetWorld()->GetTimeSeconds();
 
 			HomeGoods = SelectedGoods;
 			HomeGoods->StartEditing();
 
 			PrevTransform = HomeGoods->GetActorTransform();
+			CurrentRotationExtent = SelectedGoods->GetActorRotation().Yaw;
 
 			PlayerController->bShowMouseCursor = true;
 			PlayerController->SetInputMode(FInputModeGameAndUI());
@@ -78,16 +78,16 @@ void UObjectPlacementComponent::TrySelectObject()
 
 void UObjectPlacementComponent::StartPlacing()
 {
-	if (!Goods || !PlayerController) return;
-	if (bIsEditing) return;
+	if (!Goods || !PlayerController || bIsEditing) return;
 
 	bIsEditing = true;
-	//bIsPlacing = true;
+	bIsNewPlacing = true;
+
+	CurrentRotationExtent = 0.f;
 
 	PlayerController->bShowMouseCursor = true;
 	PlayerController->SetInputMode(FInputModeGameAndUI());
-
-
+	
 	GetWorld()->GetTimerManager().SetTimer(
 		PlacementTimerHandle,
 		this,
@@ -95,25 +95,22 @@ void UObjectPlacementComponent::StartPlacing()
 		0.016f,
 		true
 	);
-
-	// 프리뷰 오브젝트 생성
+	
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	HomeGoods = GetWorld()->SpawnActor<AHomeGoods>(Goods, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
-
-	if (HomeGoods)
-	{
-		HomeGoods->StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Overlap);
-	}
+	HomeGoods->StartEditing();
+	// if (HomeGoods)
+	// {
+	// 	//HomeGoods->StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Overlap);
+	// }
 }
 
 void UObjectPlacementComponent::UpdatePlacementPreview()
 {
 	if (!PlayerController || !HomeGoods) return;
 	
-	//bIsEditing = true;
-
 	FVector WorldLocation, WorldDirection;
 	PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
 
@@ -129,7 +126,7 @@ void UObjectPlacementComponent::UpdatePlacementPreview()
 
 	if (bHit)
 	{
-		HomeGoods->SetActorLocationAndRotation(Hit.Location, FRotator(0.f, CurrentRotation, 0.f));
+		HomeGoods->SetActorLocationAndRotation(Hit.Location, FRotator(0.f, CurrentRotationExtent, 0.f));
 		HomeGoods->CheckSpawn();
 	}
 }
@@ -143,24 +140,24 @@ void UObjectPlacementComponent::ConfirmPlacement()
 		return;
 	}
 
-	if (HomeGoods->bCanSpawn)
+	if (HomeGoods->CanSpawn())
 	{
 		HomeGoods->Place();
 		HomeGoods = nullptr;
-		//bIsPlacing = false;
 		bIsEditing = false;
 		GetWorld()->GetTimerManager().ClearTimer(PlacementTimerHandle);
 	}
 	else
 	{
 	}
+	//PlayerController->bShowMouseCursor = false;
 }
 
 void UObjectPlacementComponent::CancelPlacement()
 {
 	if (!HomeGoods) return;
 
-	if (bIsEditing)
+	if (!bIsNewPlacing)
 	{
 		HomeGoods->SetActorTransform(PrevTransform);
 		HomeGoods->Place();
@@ -170,8 +167,8 @@ void UObjectPlacementComponent::CancelPlacement()
 		HomeGoods->Destroy();
 	}
 	HomeGoods = nullptr;
-	
-	//bIsPlacing = false;
+
 	bIsEditing = false;
 	GetWorld()->GetTimerManager().ClearTimer(PlacementTimerHandle);
+	//PlayerController->bShowMouseCursor = false;
 }
