@@ -9,77 +9,49 @@
 
 
 class AHomeGoods;
-// class UCameraComponent;
-// class AHomeGoods;
-//
-// UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-// class PROJECT_API UObjectPlacementComponent : public UActorComponent
-// {
-// 	GENERATED_BODY()
-// 	
-// private:
-//
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-// 	class UCameraComponent* CachedCamera;
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-// 	class AHomeGoods* HomeGoods;
-//
-// public:	
-// 	UPROPERTY(EditAnywhere,  BlueprintReadWrite ,Category = "Spawning")
-// 	TSubclassOf<AHomeGoods> GoodsBlueprintClass;
-// 	// Sets default values for this component's properties
-// 	UObjectPlacementComponent();
-// 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
-// 	bool bPlacingTarget;
-//
-// protected:
-// 	// Called when the game starts
-// 	virtual void BeginPlay() override;
-//
-//
-// public:	
-// 	// Called every frame
-// 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-//
-// 	UFUNCTION(BlueprintCallable, Category = "Goods")
-// 	void TryPlace();
-// 	
-// };
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_API  UObjectPlacementComponent : public UActorComponent
 {
 	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Placement")
-	TSubclassOf<AHomeGoods> GoodsBlueprintClass;
-    
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Placement")
-	float PlacementRange = 1500.f;
-
-	UFUNCTION(BlueprintCallable, Category = "Placement")
-	void StartPlacing();
-    
-	UFUNCTION(BlueprintCallable, Category = "Placement")
-	void ConfirmPlacement();
-    
-	UFUNCTION(BlueprintCallable, Category = "Placement")
-	void CancelPlacement();
 	
-	virtual void BeginPlay() override;
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+public:
+	void StartPlacing();
+	void ConfirmPlacement();
+	void CancelPlacement();
+	void TrySelectObject();
+	void RotatePlacement(float Direction); 
+	bool IsEditMode() const { return bIsEditing; }
+	
+private:
+	void UpdatePlacementPreview();
 
 private:
-	UPROPERTY()
-	UCameraComponent* CachedCamera;
+	//TODO: 데이터 테이블 데이터 할당 고려
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Placement", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AHomeGoods> Goods;
     
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Placement", meta = (AllowPrivateAccess = "true"))
+	float PlacementRange = 1500.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Placement", meta = (AllowPrivateAccess = "true"))
+	float RotationSpeed = 10.f;
+	
+	UPROPERTY()
+	UCameraComponent* Camera;
+	
 	UPROPERTY()
 	AHomeGoods* HomeGoods;
-    
+	
 	UPROPERTY()
-	APlayerController* CachedController;
-    
-	bool bPlacingTarget = false;
-    
-	void UpdatePlacementPreview();
+	APlayerController* PlayerController;
+	
+	bool bIsEditing = false;
+	bool bIsPlacing = false;
+	float CurrentRotation = 0.f;
+	float LastEditStartTime;
+	FTimerHandle PlacementTimerHandle;
+	FTransform PrevTransform;
+	
+	UObjectPlacementComponent();
+	virtual void BeginPlay() override;
 };

@@ -7,177 +7,171 @@
 #include "GameFramework/Character.h"
 #include "Goods/HomeGoods.h"
 
-// // Sets default values for this component's properties
-// UObjectPlacementComponent::UObjectPlacementComponent()
-// {
-// 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-// 	// off to improve performance if you don't need them.
-// 	PrimaryComponentTick.bCanEverTick = false;
-//
-//
-// 	// ...
-// }
-//
-//
-// void UObjectPlacementComponent::BeginPlay()
-// {
-// 	Super::BeginPlay();
-// 	
-// 	if (CachedCamera == nullptr)
-// 	{
-// 		if (AActor* Owner = GetOwner())
-// 		{
-// 			CachedCamera = Owner->FindComponentByClass<UCameraComponent>();
-// 		}
-// 	}
-// }
-//
-// // Called every frame
-// void UObjectPlacementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-// {
-// 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-//
-// 	// ...
-// }
-//
-// void UObjectPlacementComponent::TryPlace()
-// {
-// 	if (!CachedCamera) return;
-// 	
-// 	if (bPlacingTarget == false) return;
-// 	
-// 	FVector Start = CachedCamera->GetComponentLocation();
-// 	FVector End = Start + CachedCamera->GetForwardVector() * 1500.f;
-// 	
-// 	FHitResult Hit;
-// 	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility);
-// 	
-// 	if (!Hit.bBlockingHit)
-// 	{
-// 		if (HomeGoods)
-// 		{
-// 			HomeGoods->Destroy();
-// 			HomeGoods = nullptr;
-// 		}
-// 		return;
-// 	}
-// 	
-// 	if (HomeGoods)
-// 	{
-// 		HomeGoods->SetActorLocation(Hit.Location);
-// 	}
-// 	else
-// 	{
-// 		FActorSpawnParameters SpawnParams;
-// 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-// 		if (!GoodsBlueprintClass)
-// 		{
-// 			return;
-// 		}
-//                 
-// 		HomeGoods = GetWorld()->SpawnActor<AHomeGoods>(GoodsBlueprintClass, Hit.Location, FRotator::ZeroRotator, SpawnParams);
-// 	}
-// 	HomeGoods->CheckSpawn();
-// 	
-// }
 
 void UObjectPlacementComponent::BeginPlay()
 {
-    Super::BeginPlay();
-    
-    if (AActor* Owner = GetOwner())
-    {
-        CachedCamera = Owner->FindComponentByClass<UCameraComponent>();
-        
-        if (ACharacter* Character = Cast<ACharacter>(Owner))
-        {
-            CachedController = Cast<APlayerController>(Character->GetController());
-        }
-    }
+	Super::BeginPlay();
+
+	if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
+	{
+		Camera = Character->FindComponentByClass<UCameraComponent>();
+		PlayerController = Character->GetController<APlayerController>();
+	}
 }
 
-void UObjectPlacementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+UObjectPlacementComponent::UObjectPlacementComponent()
 {
-    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    
-    if (bPlacingTarget)
-    {
-        UpdatePlacementPreview();
-    }
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bStartWithTickEnabled = false;
+}
+
+void UObjectPlacementComponent::RotatePlacement(float Direction)
+{
+	//if (!bIsPlacing || !HomeGoods) return;
+	if (!bIsEditing || !HomeGoods) return;
+
+	CurrentRotation += RotationSpeed * Direction;
+	HomeGoods->SetActorRotation(FRotator(0.f, CurrentRotation, 0.f));
+}
+
+void UObjectPlacementComponent::TrySelectObject()
+{
+	if (bIsEditing || !PlayerController) return;
+
+	FVector WorldLocation, WorldDirection;
+	PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
+
+	FVector Start = WorldLocation;
+	FVector End = Start + WorldDirection * PlacementRange;
+
+	FHitResult Hit;
+	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility);
+
+	if (Hit.bBlockingHit)
+	{
+		AHomeGoods* SelectedGoods = Cast<AHomeGoods>(Hit.GetActor());
+
+		if (SelectedGoods && SelectedGoods->CanBeSelected())
+		{
+			//bIsPlacing = true;
+			bIsEditing = true;
+			LastEditStartTime = GetWorld()->GetTimeSeconds();
+
+			HomeGoods = SelectedGoods;
+			HomeGoods->StartEditing();
+
+			PrevTransform = HomeGoods->GetActorTransform();
+
+			PlayerController->bShowMouseCursor = true;
+			PlayerController->SetInputMode(FInputModeGameAndUI());
+
+			GetWorld()->GetTimerManager().SetTimer(
+				PlacementTimerHandle,
+				this,
+				&UObjectPlacementComponent::UpdatePlacementPreview,
+				0.016f,
+				true
+			);
+		}
+	}
 }
 
 void UObjectPlacementComponent::StartPlacing()
 {
-    if (!GoodsBlueprintClass || !CachedController) return;
-    
-    bPlacingTarget = true;
-    PrimaryComponentTick.bCanEverTick = true;
-    
-    // 프리뷰 오브젝트 생성
-    FActorSpawnParameters SpawnParams;
-    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    
-    HomeGoods = GetWorld()->SpawnActor<AHomeGoods>(GoodsBlueprintClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
-    
-    if (HomeGoods)
-    {
-        HomeGoods->StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Overlap);
-    }
+	if (!Goods || !PlayerController) return;
+	if (bIsEditing) return;
+
+	bIsEditing = true;
+	//bIsPlacing = true;
+
+	PlayerController->bShowMouseCursor = true;
+	PlayerController->SetInputMode(FInputModeGameAndUI());
+
+
+	GetWorld()->GetTimerManager().SetTimer(
+		PlacementTimerHandle,
+		this,
+		&UObjectPlacementComponent::UpdatePlacementPreview,
+		0.016f,
+		true
+	);
+
+	// 프리뷰 오브젝트 생성
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	HomeGoods = GetWorld()->SpawnActor<AHomeGoods>(Goods, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+
+	if (HomeGoods)
+	{
+		HomeGoods->StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Overlap);
+	}
 }
 
 void UObjectPlacementComponent::UpdatePlacementPreview()
 {
-    if (!CachedController || !HomeGoods) return;
-    
-    FVector WorldLocation, WorldDirection;
-    CachedController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
-    
-    FVector Start = WorldLocation;
-    FVector End = Start + WorldDirection * PlacementRange;
-    
-    FHitResult Hit;
-    FCollisionQueryParams QueryParams;
-    QueryParams.AddIgnoredActor(HomeGoods);
-    QueryParams.AddIgnoredActor(GetOwner());
-    
-    bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, QueryParams);
-    
-    if (bHit)
-    {
-        HomeGoods->SetActorLocation(Hit.Location);
-        HomeGoods->CheckSpawn();
-    }
+	if (!PlayerController || !HomeGoods) return;
+	
+	//bIsEditing = true;
+
+	FVector WorldLocation, WorldDirection;
+	PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
+
+	FVector Start = WorldLocation;
+	FVector End = Start + WorldDirection * PlacementRange;
+
+	FHitResult Hit;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(HomeGoods);
+	QueryParams.AddIgnoredActor(GetOwner());
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, QueryParams);
+
+	if (bHit)
+	{
+		HomeGoods->SetActorLocationAndRotation(Hit.Location, FRotator(0.f, CurrentRotation, 0.f));
+		HomeGoods->CheckSpawn();
+	}
 }
 
 void UObjectPlacementComponent::ConfirmPlacement()
 {
-    if (!bPlacingTarget || !HomeGoods) return;
-    
-    if (HomeGoods->bCanSpawn)
-    {
-        // 배치 확정
-        HomeGoods->Place();
-        HomeGoods = nullptr;
-        bPlacingTarget = false;
-        PrimaryComponentTick.bCanEverTick = false;
-    }
-    else
-    {
+	if (!bIsEditing || !HomeGoods) return;
 
-    }
+	if (GetWorld()->GetTimeSeconds() - LastEditStartTime < 0.3f)
+	{
+		return;
+	}
+
+	if (HomeGoods->bCanSpawn)
+	{
+		HomeGoods->Place();
+		HomeGoods = nullptr;
+		//bIsPlacing = false;
+		bIsEditing = false;
+		GetWorld()->GetTimerManager().ClearTimer(PlacementTimerHandle);
+	}
+	else
+	{
+	}
 }
 
 void UObjectPlacementComponent::CancelPlacement()
 {
-    if (HomeGoods)
-    {
-        HomeGoods->Destroy();
-        HomeGoods = nullptr;
-    }
-    
-    bPlacingTarget = false;
-    PrimaryComponentTick.bCanEverTick = false;
+	if (!HomeGoods) return;
+
+	if (bIsEditing)
+	{
+		HomeGoods->SetActorTransform(PrevTransform);
+		HomeGoods->Place();
+	}
+	else
+	{
+		HomeGoods->Destroy();
+	}
+	HomeGoods = nullptr;
+	
+	//bIsPlacing = false;
+	bIsEditing = false;
+	GetWorld()->GetTimerManager().ClearTimer(PlacementTimerHandle);
 }
-
-
-

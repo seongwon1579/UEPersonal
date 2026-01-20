@@ -32,12 +32,29 @@ public:
     
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* CancelPlacementAction;
+	
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* RotateAction;
+
+	void OnRotateAction(const FInputActionValue& Value);
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* SelectObjectAction;
+
+	void OnSelectObject(const FInputActionValue& Value);
+
+	// 더블클릭 감지용
+	float LastClickTime = 0.f;
+	float DoubleClickThreshold = 0.3f; 
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void InitializeComponent() override;
 
 public:
 	//void SetupInputComponent(class UInputComponent* PlayerInputComponent);
+	
 
 private:
 	UPROPERTY()

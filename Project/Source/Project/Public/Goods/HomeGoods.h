@@ -22,7 +22,14 @@ public:
 	UMaterialInterface* Material_Red;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	UMaterialInterface* Material_Target;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Placement")
+	bool bIsSelectable = false;  
+	UFUNCTION(BlueprintCallable, Category = "Placement")
+	bool CanBeSelected() const { return bIsSelectable; }
 
+	UFUNCTION(BlueprintCallable, Category = "Placement")
+	void StartEditing();  // 추가
 	
 	
 	bool bCanSpawn;

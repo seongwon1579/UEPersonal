@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/Character.h"
+#include "InputMappingContext.h"
 
 // UPlacementInputComponent::UPlacementInputComponent()
 // {
@@ -112,11 +113,71 @@
 UPlacementInputComponent::UPlacementInputComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
+    
+    
+    // static ConstructorHelpers::FObjectFinder<UInputMappingContext> MappingContextFinder(TEXT("/Game/_BP/Input/IMC_Placement.IMC_Placement"));
+    // if (MappingContextFinder.Succeeded())
+    // {
+    //     PlacementMappingContext = MappingContextFinder.Object.Get();
+    // }
+
+    // static ConstructorHelpers::FObjectFinder<UInputMappingContext> MappingContextFinder(TEXT("/Game/_BP/Input/IMC_Placement.IMC_Placement"));
+    //
+    // if (MappingContextFinder.Succeeded())
+    // {
+    //     // 1. 일반적인 방식 (대부분 여기서 해결됨)
+    //     PlacementMappingContext = MappingContextFinder.Object.Get();
+    // }
+    // static TSoftObjectPtr<UInputMappingContext> MappingContext(FSoftObjectPath(TEXT("/Game/_BP/Input/IMC_Placement.IMC_Placement")));
+    //
+    // PlacementMappingContext = MappingContext.LoadSynchronous();
+    
+    // PlacementMappingContext = LoadObject<UInputMappingContext>(
+    // nullptr,
+    // TEXT("/Game/_BP/Input/IMC_Placement.IMC_Placement")
+//);
+
+}
+
+
+void UPlacementInputComponent::OnRotateAction(const FInputActionValue& Value)
+{
+    if (PlacementComponent)
+    {
+        float ScrollValue = Value.Get<float>();
+        PlacementComponent->RotatePlacement(ScrollValue);
+    }
+}
+
+void UPlacementInputComponent::OnSelectObject(const FInputActionValue& Value)
+{
+    if (!PlacementComponent) return;
+    
+    if (PlacementComponent->IsEditMode()) return;
+    
+    float CurrentTime = GetWorld()->GetTimeSeconds();
+    
+    if (CurrentTime - LastClickTime < DoubleClickThreshold)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Double Click Detected!"));
+        PlacementComponent->TrySelectObject();
+    }
+    
+    LastClickTime = CurrentTime;
 }
 
 void UPlacementInputComponent::BeginPlay()
 {
     Super::BeginPlay();
+    static TSoftObjectPtr<UInputMappingContext> MappingContext(FSoftObjectPath(TEXT("/Game/_BP/Input/IMC_Placement.IMC_Placement")));
+    
+    PlacementMappingContext = MappingContext.LoadSynchronous();
+    
+    // static ConstructorHelpers::FObjectFinder<UInputMappingContext> MappingContextFinder(TEXT("/Game/_BP/Input/IMC_Placement.IMC_Placement"));
+    // if (MappingContextFinder.Succeeded())
+    // {
+    //     PlacementMappingContext = MappingContextFinder.Object.Get();
+    // }
     
     AActor* Owner = GetOwner();
     if (!Owner) return;
@@ -147,22 +208,40 @@ void UPlacementInputComponent::BeginPlay()
     // 바인딩
     if (StartPlacingAction)
     {
-        EnhancedInputComponent->BindAction(StartPlacingAction, ETriggerEvent::Triggered, 
+        EnhancedInputComponent->BindAction(StartPlacingAction, ETriggerEvent::Started, 
             this, &UPlacementInputComponent::OnStartPlacing);
         UE_LOG(LogTemp, Warning, TEXT("StartPlacing Action Bound!"));
     }
     
     if (ConfirmPlacementAction)
     {
-        EnhancedInputComponent->BindAction(ConfirmPlacementAction, ETriggerEvent::Triggered, 
+        EnhancedInputComponent->BindAction(ConfirmPlacementAction, ETriggerEvent::Started, 
             this, &UPlacementInputComponent::OnConfirmPlacement);
     }
     
     if (CancelPlacementAction)
     {
-        EnhancedInputComponent->BindAction(CancelPlacementAction, ETriggerEvent::Triggered, 
+        EnhancedInputComponent->BindAction(CancelPlacementAction, ETriggerEvent::Started, 
             this, &UPlacementInputComponent::OnCancelPlacement);
     }
+    
+    
+    if (RotateAction)
+    {
+        EnhancedInputComponent->BindAction(RotateAction, ETriggerEvent::Started, this, &UPlacementInputComponent::OnRotateAction);
+    }
+    
+    if (SelectObjectAction)
+    {
+        EnhancedInputComponent->BindAction(SelectObjectAction, ETriggerEvent::Started,
+            this, &UPlacementInputComponent::OnSelectObject);
+    }
+}
+
+void UPlacementInputComponent::InitializeComponent()
+{
+    Super::InitializeComponent();
+
 }
 
 void UPlacementInputComponent::OnStartPlacing(const FInputActionValue& Value)
@@ -182,6 +261,8 @@ void UPlacementInputComponent::OnStartPlacing(const FInputActionValue& Value)
 void UPlacementInputComponent::OnConfirmPlacement(const FInputActionValue& Value)
 {
     UE_LOG(LogTemp, Warning, TEXT("Left Click!"));
+    
+    if (!PlacementComponent->IsEditMode()) return;
     
     if (PlacementComponent)
     {
