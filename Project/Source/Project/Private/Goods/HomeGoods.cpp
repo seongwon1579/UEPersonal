@@ -14,12 +14,16 @@ AHomeGoods::AHomeGoods()
 
 void AHomeGoods::StartEditing()
 {
+	if (!HomeGoodsMaterial || !StaticMeshComponent) return;
+	
 	bIsSelectable = false;
 	StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Overlap);
 }
 
 void AHomeGoods::CheckSpawn()
 {
+	if (!HomeGoodsMaterial || !StaticMeshComponent) return;
+	
 	FVector Location = GetActorLocation();
 	FQuat Quat = GetActorQuat();
 
@@ -41,7 +45,7 @@ void AHomeGoods::CheckSpawn()
 		FCollisionShape::MakeBox(BoxExtent),
 		QueryParams
 	);
-	
+
 	if (bIsOverlapping)
 	{
 		StaticMeshComponent->SetMaterial(0, Material_Red);
@@ -60,15 +64,14 @@ void AHomeGoods::CheckSpawn()
 
 void AHomeGoods::Place()
 {
-	if (bCanSpawn)
-	{
-		StaticMeshComponent->SetMaterial(0, Material_Target);
-		// StaticMeshComponent->SetCollisionProfileName(TEXT("BlockAllDynamic"));
+	if (!bCanSpawn|| !HomeGoodsMaterial) return;
 
-		StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		StaticMeshComponent->SetCollisionObjectType(ECC_WorldDynamic);
-		StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
+	StaticMeshComponent->SetMaterial(0, HomeGoodsMaterial);
+	// StaticMeshComponent->SetCollisionProfileName(TEXT("BlockAllDynamic"));
 
-		bIsSelectable = true;
-	}
+	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	StaticMeshComponent->SetCollisionObjectType(ECC_WorldDynamic);
+	StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
+
+	bIsSelectable = true;
 }
