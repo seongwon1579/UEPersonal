@@ -5,6 +5,15 @@
 
 #include "DebugHelper.h"
 #include "Goods/GoodsData/FFurnitureItemData.h"
+#include "Pool/StaticMeshPool.h"
+
+void UPlaceableItemSubsystem::InitializeStaticMeshPool(UWorld* World)
+{
+	StaticMeshPoolClass = LoadClass<AStaticMeshPool>(nullptr, 
+	TEXT("/Game/_BP/Pool/BP_StaticMeshPool.BP_StaticMeshPool_C"));
+	
+	StaticMeshPool = World->SpawnActor<AStaticMeshPool>(StaticMeshPoolClass);
+}
 
 void UPlaceableItemSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {

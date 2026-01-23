@@ -7,10 +7,19 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
+#include "GameFramework/GameSession.h"
+#include "Kismet/GameplayStatics.h"
 
 UPlacementInputComponent::UPlacementInputComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	
+	static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMC_Asset(TEXT("/Game/_BP/Input/IMC_Placement.IMC_Placement"));
+
+	if (IMC_Asset.Succeeded())
+	{
+		PlacementMappingContext = IMC_Asset.Object;
+	}
 }
 
 void UPlacementInputComponent::BindInputAction(UEnhancedInputComponent* EnhancedInputComponent)
@@ -58,7 +67,7 @@ void UPlacementInputComponent::BeginPlay()
 	// InputComponent 가져오기
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(Pawn->InputComponent);
 	if (!EnhancedInputComponent) return;
-
+	
 	// IMC 추가
 	if (APlayerController* PC = Cast<APlayerController>(Pawn->GetController()))
 	{

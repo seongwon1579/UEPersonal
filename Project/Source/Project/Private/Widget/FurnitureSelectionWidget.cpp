@@ -21,6 +21,10 @@ void UFurnitureSelectionWidget::PopulateGrid(const TArray<FFurnitureItemData*>& 
 		return;
 	
 	UniformGridPanel->ClearChildren();
+
+	UniformGridPanel->SetMinDesiredSlotWidth(160.f);
+	UniformGridPanel->SetMinDesiredSlotHeight(160.f);
+	UniformGridPanel->SetSlotPadding(FMargin(30.f));
 	
 	int32 Columns = 2;
     
@@ -33,7 +37,10 @@ void UFurnitureSelectionWidget::PopulateGrid(const TArray<FFurnitureItemData*>& 
 			int32 Col = i % Columns;
             
 			UUniformGridSlot* GridSlot = UniformGridPanel->AddChildToUniformGrid(NewWidget, Row, Col);
-			GridSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Center);
+			// GridSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Center);
+			// GridSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
+			GridSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
+			GridSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
 			
 			NewWidget->SetupSlot(DataArray[i]);
 		}

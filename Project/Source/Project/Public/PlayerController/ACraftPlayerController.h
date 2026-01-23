@@ -10,7 +10,9 @@
  * 
  */
 
-class UFurnitureSelectionWidget;
+class UUIManager;
+
+class UPlaceActorWidget;
 UCLASS()
 class PROJECT_API AACraftPlayerController : public APlayerController
 {
@@ -19,9 +21,12 @@ class PROJECT_API AACraftPlayerController : public APlayerController
 	virtual void BeginPlay() override;
 	
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<UFurnitureSelectionWidget> WidgetClass;
+	TSubclassOf<UPlaceActorWidget> WidgetClass;
 	
 	UPROPERTY()
-	UFurnitureSelectionWidget* FurnitureWidget;
+	UPlaceActorWidget* PlaceActorWidget;
+	
+	UPROPERTY()
+	UUIManager* UIManager;
 	
 };

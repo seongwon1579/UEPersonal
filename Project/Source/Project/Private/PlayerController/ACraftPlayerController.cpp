@@ -3,24 +3,38 @@
 
 #include "PlayerController/ACraftPlayerController.h"
 
+#include "DebugHelper.h"
 #include "Blueprint/UserWidget.h"
+#include "Manager/UIManager.h"
 #include "SubSystem/PlaceableItemSubsystem.h"
 #include "Widget/FurnitureSelectionWidget.h"
+#include "Widget/PlaceActorWidget.h"
 
 void AACraftPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (!WidgetClass) return;
-	
-	FurnitureWidget = CreateWidget<UFurnitureSelectionWidget>(this, WidgetClass);
+	 if (!WidgetClass) return;
+	//
+	//
+	// PlaceActorWidget = CreateWidget<UPlaceActorWidget>(this, WidgetClass);
+	//
+	// UPlaceableItemSubsystem* PlaceableItemSubsystem = GetGameInstance()->GetSubsystem<UPlaceableItemSubsystem>();
+	// TArray<FFurnitureItemData*> FurnitureItemData = PlaceableItemSubsystem->GetAllFurnitureData();
+	//
+	// if (!FurnitureItemData.IsEmpty())
+	// {
+	// 	PlaceActorWidget->SetupWithData(FurnitureItemData);
+	// }
+	// PlaceActorWidget->AddToViewport();
 	
 	UPlaceableItemSubsystem* PlaceableItemSubsystem = GetGameInstance()->GetSubsystem<UPlaceableItemSubsystem>();
-	TArray<FFurnitureItemData*> FurnitureItemData = PlaceableItemSubsystem->GetAllFurnitureData();
+	PlaceableItemSubsystem->InitializeStaticMeshPool(GetWorld());
 	
-	if (!FurnitureItemData.IsEmpty())
-	{
-		FurnitureWidget->PopulateGrid(FurnitureItemData);
-		FurnitureWidget->AddToViewport();
-	}
+	
+	//TODO: 임시로 플레이어 컨트롤러에서 만듬 
+	UIManager = NewObject<UUIManager>(this);
+	
+	UIManager->Initialize(this, WidgetClass);
+	UIManager->ShowPlaceActorWidget();
 }

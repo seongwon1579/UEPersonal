@@ -12,6 +12,7 @@
 class USizeBox;
 class UTextBlock;
 class UImage;
+class UButton;
 struct FFurnitureItemData;
 
 UCLASS()
@@ -20,15 +21,26 @@ class PROJECT_API UFurnitureSlot : public UUserWidget
 public:
 	void SetSizeBox(float Width, float Height);
 	void SetupSlot(FFurnitureItemData* Data);
-	
+
 	GENERATED_BODY()
 
 	UPROPERTY(meta = (BindWidget))
 	USizeBox* FurnitureSlot_SizeBox;
-	
+
 	UPROPERTY(meta = (BindWidget))
 	UImage* FurnitureSlot_Thumbnail_Image;
-    
+
+	UPROPERTY(meta =(BindWidget))
+	UButton* FurnitureIconBtn;
+
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* FurnitureSlot_Name_TextBlock;
+
+	UFUNCTION()
+	void OnButtonClicked();
+
+	virtual void NativeConstruct() override;
+
+private:
+	FFurnitureItemData* FurnitureItemData;
 };

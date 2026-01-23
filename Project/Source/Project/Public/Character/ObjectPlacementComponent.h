@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DebugHelper.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ActorComponent.h"
 #include "ObjectPlacementComponent.generated.h"
 
-
+struct FFurnitureItemData;
 class AHomeGoods;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_API  UObjectPlacementComponent : public UActorComponent
@@ -21,6 +22,8 @@ public:
 	void TrySelectObject();
 	void RotatePlacement(float Direction); 
 	bool IsEditMode() const { return bIsEditing; }
+	
+	void TestMethod(FFurnitureItemData* Data);
 	
 private:
 	void UpdatePlacementPreview();

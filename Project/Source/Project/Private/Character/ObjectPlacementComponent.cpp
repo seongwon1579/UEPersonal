@@ -6,6 +6,9 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
 #include "Goods/HomeGoods.h"
+#include "Goods/GoodsData/FFurnitureItemData.h"
+#include "Pool/StaticMeshPool.h"
+#include "SubSystem/PlaceableItemSubsystem.h"
 
 
 void UObjectPlacementComponent::BeginPlay()
@@ -99,12 +102,23 @@ void UObjectPlacementComponent::StartPlacing()
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	HomeGoods = GetWorld()->SpawnActor<AHomeGoods>(Goods, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+	//HomeGoods = GetWorld()->SpawnActor<AHomeGoods>(Goods, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
 	HomeGoods->StartEditing();
 	// if (HomeGoods)
 	// {
 	// 	//HomeGoods->StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Overlap);
 	// }
+}
+
+void UObjectPlacementComponent::TestMethod(FFurnitureItemData* Data)
+{
+	UPlaceableItemSubsystem* Subsystem = GetOwner()->GetGameInstance()->GetSubsystem<UPlaceableItemSubsystem>();
+	HomeGoods = Subsystem->GetStaticMeshPool()->GetHomeGoods();
+	
+	if (!HomeGoods|| !Data) return;
+	HomeGoods->SetHomeGoods(Data->Material, Data->Mesh);
+	
+	
 }
 
 void UObjectPlacementComponent::UpdatePlacementPreview()

@@ -26,6 +26,16 @@ public:
 	{
 		HomeGoodsMaterial = Material;
 		HomeGoodsStaticMesh = StaticMesh;
+		
+		if (StaticMesh)
+		{
+			StaticMeshComponent->SetStaticMesh(StaticMesh);
+		}
+    
+		if (Material)
+		{
+			StaticMeshComponent->SetMaterial(0, Material);
+		}
 	}
 
 private:	
@@ -41,7 +51,7 @@ private:
 	// UMaterialInterface* Material_Target;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DebugMode",meta = (AllowPrivateAccess = "true"))
 	bool bDebugMode = false;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Materials",meta = (AllowPrivateAccess = "true"))
 	UMaterialInterface* HomeGoodsMaterial;
 	UPROPERTY()
 	UStaticMesh* HomeGoodsStaticMesh;

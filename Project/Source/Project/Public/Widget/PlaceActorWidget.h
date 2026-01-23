@@ -9,9 +9,19 @@
 /**
  * 
  */
+struct FFurnitureItemData;
+class UFurnitureSelectionWidget;
 UCLASS()
 class PROJECT_API UPlaceActorWidget : public UUserWidget
 {
 	GENERATED_BODY()
+	
+public:
+	void SetupWithData(const TArray<FFurnitureItemData*>& DataArray);
+	
+
+public:
+	UPROPERTY(meta = (BindWidget))
+	UFurnitureSelectionWidget* FurnitureSelectionWidget;
 	
 };
