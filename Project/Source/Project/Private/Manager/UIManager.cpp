@@ -7,10 +7,6 @@
 #include "SubSystem/PlaceableItemSubsystem.h"
 #include "Widget/PlaceActorWidget.h"
 
-UUIManager::UUIManager()
-{
-}
-
 void UUIManager::ShowPlaceActorWidget()
 {
 	if (!PlaceWidget || !Controller) return;
