@@ -6,55 +6,62 @@
 #include "DebugHelper.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ActorComponent.h"
+#include "Interfaces/ObjectPlacementInterface.h"
+
 #include "ObjectPlacementComponent.generated.h"
 
 struct FFurnitureItemData;
 class AHomeGoods;
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECT_API  UObjectPlacementComponent : public UActorComponent
+class UPlaceableItemSubsystem;
+
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+class PROJECT_API UObjectPlacementComponent : public UActorComponent, public IObjectPlacementInterface
 {
 	GENERATED_BODY()
-	
+
 public:
-	void StartPlacing();
+	void StartPlacement();
 	void ConfirmPlacement();
 	void CancelPlacement();
 	void TrySelectObject();
-	void RotatePlacement(float Direction); 
-	bool IsEditMode() const { return bIsEditing; }
-	
-	void TestMethod(FFurnitureItemData* Data);
-	
-private:
-	void UpdatePlacementPreview();
+	void RotateObject(float Direction);
+	bool IsPreviewMode() const { return bIsPreview; }
+
+	virtual void PreparePlacement_Implementation(const FFurnitureItemData& ItemData) override;
+
+protected:
+	virtual void BeginPlay() override;
 
 private:
-	//TODO: 데이터 테이블 데이터 할당 고려
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Placement", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AHomeGoods> Goods;
-    
+	UObjectPlacementComponent();
+	void UpdatePlacementPreview();
+	void ResetPlacement();
+	void SetupPreview();
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Placement", meta = (AllowPrivateAccess = "true"))
 	float PlacementRange = 1500.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Placement", meta = (AllowPrivateAccess = "true"))
 	float RotationSpeed = 10.f;
-	
+
 	UPROPERTY()
 	UCameraComponent* Camera;
-	
+
 	UPROPERTY()
 	AHomeGoods* HomeGoods;
-	
+
 	UPROPERTY()
 	APlayerController* PlayerController;
-	
-	bool bIsEditing = false;
+
+	UPROPERTY()
+	UPlaceableItemSubsystem* PlaceableItemSubsystem;
+
+	bool bIsPreview = false;
 	bool bIsNewPlacing = false;
 	float CurrentRotationExtent = 0.f;
+	float PreviewUpdateInterval = 0.016f;
+	float DoubleClickThreshold = 0.3f;
 	float LastEditStartTime;
 	FTimerHandle PlacementTimerHandle;
 	FTransform PrevTransform;
-	
-	UObjectPlacementComponent();
-	virtual void BeginPlay() override;
 };

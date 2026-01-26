@@ -7,6 +7,7 @@
 #include "Goods/GoodsData/FFurnitureItemData.h"
 #include "Pool/StaticMeshPool.h"
 
+// 풀을 초기화 한다.
 void UPlaceableItemSubsystem::InitializeStaticMeshPool(UWorld* World)
 {
 	StaticMeshPoolClass = LoadClass<AStaticMeshPool>(nullptr, 
@@ -15,20 +16,16 @@ void UPlaceableItemSubsystem::InitializeStaticMeshPool(UWorld* World)
 	StaticMeshPool = World->SpawnActor<AStaticMeshPool>(StaticMeshPoolClass);
 }
 
+// 데이터 테이블을 로드한다.
 void UPlaceableItemSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 	
 	FurnitureDataTable = LoadObject<UDataTable>(nullptr, TEXT("/Game/_BP/Goods/Data/DT_Furniture.DT_Furniture"));
-	
-	// TArray<FFurnitureItemData*> Result;
-	// FurnitureDataTable->GetAllRows<FFurnitureItemData>(TEXT("GetAllFurnitureData"), Result);
-	//
-	// UE_LOG(LogTemp, Warning, TEXT("Data: %s"), *Result[0]->Name.ToString());
-	
 }
 
 
+// 데이터 테이블에서 데이터를 가져온다.
 TArray<FFurnitureItemData*> UPlaceableItemSubsystem::GetAllFurnitureData()
 {
 	TArray<FFurnitureItemData*> Result;

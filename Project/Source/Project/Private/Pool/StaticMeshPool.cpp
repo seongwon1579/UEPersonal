@@ -7,37 +7,49 @@
 void AStaticMeshPool::BeginPlay()
 {
 	Super::BeginPlay();
+	PopulatePool(PoolSize);
+}
+
+// 풀에서 들어오거 나갈때 액터의 상태 설정
+void AStaticMeshPool::SetActiveState(AHomeGoods* Goods, const bool bActive)
+{
+	if (!Goods) return;
 	
-	for (int32 i = 0; i < 20; i++)
+	Goods->SetActorHiddenInGame(!bActive);
+	Goods->SetActorEnableCollision(bActive);
+}
+
+// 풀의 크기를 조절
+void AStaticMeshPool::PopulatePool(int32 size)
+{
+	for (int32 i = 0; i < size; i++)
 	{
 		AHomeGoods* Goods = GetWorld()->SpawnActor<AHomeGoods>(HomeGoods);
-		
 		if (!Goods) return;
-		
-		Goods->SetActorHiddenInGame(true);
-		Goods->SetActorEnableCollision(false);
+
 		HomeGoodsArray.Add(Goods);
 	}
 }
 
+// 풀에서 액터를 반환한다.
 AHomeGoods* AStaticMeshPool::GetHomeGoods()
 {
-	AHomeGoods* Goods = nullptr;
-	
-	if (HomeGoodsArray.Num() > 0)
+	// 풀에 모든 액터가 빠져나가면 풀의 크기를 늘린다.
+	if (HomeGoodsArray.Num() <= 0)
 	{
-		Goods = HomeGoodsArray.Pop();
-		Goods->SetActorHiddenInGame(false);
-		Goods->SetActorEnableCollision(true);
+		PopulatePool(PoolSize);
 	}
+
+	AHomeGoods* Goods = HomeGoodsArray.Pop();
+	SetActiveState(Goods, true);
 	return Goods;
 }
 
+// 사용이 끝난 액터를 반환한다.
 void AStaticMeshPool::ReturnHomeGoods(AHomeGoods* Goods)
 {
-	Goods->SetActorHiddenInGame(true);
-	Goods->SetActorEnableCollision(false);
+	if (!Goods) return;
+	
 	HomeGoodsArray.Add(Goods);
+	SetActiveState(Goods, false);
 }
-
-

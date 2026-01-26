@@ -14,18 +14,24 @@ UCLASS()
 class PROJECT_API AStaticMeshPool : public AActor
 {
 	GENERATED_BODY()
-	
+
 public:
-	UPROPERTY(EditAnywhere, Category = "Pool")
-	TSubclassOf<AHomeGoods> HomeGoods;
-	
-	TArray<AHomeGoods*> HomeGoodsArray;
-	
-public:
-	virtual void BeginPlay() override;
-	
 	AHomeGoods* GetHomeGoods();
 	void ReturnHomeGoods(AHomeGoods* Goods);
 	
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Pool")
+	TSubclassOf<AHomeGoods> HomeGoods;
+
+	TArray<AHomeGoods*> HomeGoodsArray;
+
+protected:
+	virtual void BeginPlay() override;
+
+private:
+	void SetActiveState(AHomeGoods* Goods, const bool bActive);
+	void PopulatePool(int32 size);
+	
+	UPROPERTY(EditAnywhere, Category= "Pool", meta=(AllowPrivateAccess=true))
+	int32 PoolSize = 10;
 };

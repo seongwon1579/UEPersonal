@@ -13,8 +13,10 @@
 UPlacementInputComponent::UPlacementInputComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	
-	static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMC_Asset(TEXT("/Game/_BP/Input/IMC_Placement.IMC_Placement"));
+
+	// IMC 로드
+	static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMC_Asset(
+		TEXT("/Game/_BP/Input/IMC_Placement.IMC_Placement"));
 
 	if (IMC_Asset.Succeeded())
 	{
@@ -22,76 +24,76 @@ UPlacementInputComponent::UPlacementInputComponent()
 	}
 }
 
+// 사용자 입력 이벤트를 바인딩 한다.
 void UPlacementInputComponent::BindInputAction(UEnhancedInputComponent* EnhancedInputComponent)
 {
-	if (StartPlacingAction)
+	if (StartPlacementAction)
 	{
-		EnhancedInputComponent->BindAction(StartPlacingAction, ETriggerEvent::Started,
-										   this, &UPlacementInputComponent::OnStartPlacing);
+		EnhancedInputComponent->BindAction(StartPlacementAction, ETriggerEvent::Started,
+		                                   this, &UPlacementInputComponent::OnStartPlacement);
 	}
 	if (ConfirmPlacementAction)
 	{
 		EnhancedInputComponent->BindAction(ConfirmPlacementAction, ETriggerEvent::Started,
-										   this, &UPlacementInputComponent::OnConfirmPlacement);
+		                                   this, &UPlacementInputComponent::OnConfirmPlacement);
 	}
 	if (CancelPlacementAction)
 	{
 		EnhancedInputComponent->BindAction(CancelPlacementAction, ETriggerEvent::Started,
-										   this, &UPlacementInputComponent::OnCancelPlacement);
+		                                   this, &UPlacementInputComponent::OnCancelPlacement);
 	}
 	if (RotateAction)
 	{
 		EnhancedInputComponent->BindAction(RotateAction, ETriggerEvent::Started, this,
-										   &UPlacementInputComponent::OnRotateAction);
+		                                   &UPlacementInputComponent::OnRotateAction);
 	}
 	if (SelectObjectAction)
 	{
 		EnhancedInputComponent->BindAction(SelectObjectAction, ETriggerEvent::Started,
-										   this, &UPlacementInputComponent::OnSelectObject);
+		                                   this, &UPlacementInputComponent::OnSelectObject);
 	}
 }
 
 void UPlacementInputComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	// static TSoftObjectPtr<UInputMappingContext> MappingContext(
-	// 	FSoftObjectPath(TEXT("/Game/_BP/Input/IMC_Placement.IMC_Placement")));
-	//
-	// PlacementMappingContext = MappingContext.LoadSynchronous();
-	
-	PlacementComponent = GetOwner()->FindComponentByClass<UObjectPlacementComponent>();
 
+	PlacementComponent = GetOwner()->FindComponentByClass<UObjectPlacementComponent>();
+	if (!PlacementComponent) return;
+	
 	APawn* Pawn = Cast<APawn>(GetOwner());
 	if (!Pawn) return;
 
-	// InputComponent 가져오기
+	// EIC 캐스팅
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(Pawn->InputComponent);
 	if (!EnhancedInputComponent) return;
-	
-	// IMC 추가
-	if (APlayerController* PC = Cast<APlayerController>(Pawn->GetController()))
+
+	// 배치 모드 입력 매핑 등록
+	APlayerController* PC = Cast<APlayerController>(Pawn->GetController());
+	if (!PC) return;
+
+	if (!PlacementMappingContext) return;
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
-			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
-		{
-			if (PlacementMappingContext)
-			{
-				Subsystem->AddMappingContext(PlacementMappingContext, 1);
-			}
-		}
+		Subsystem->AddMappingContext(PlacementMappingContext, 1);
 	}
 	
+	// 인풋 액션 바인딩
 	BindInputAction(EnhancedInputComponent);
 }
 
+// 배치가 된 오브젝트를 더블 클릭으로 선택가능한지를 확인
 void UPlacementInputComponent::OnSelectObject(const FInputActionValue& Value)
 {
 	if (!PlacementComponent) return;
-
-	if (PlacementComponent->IsEditMode()) return;
+	
+	// 현재 프리뷰 모드인 경우, 리턴
+	if (PlacementComponent->IsPreviewMode()) return;
 
 	float CurrentTime = GetWorld()->GetTimeSeconds();
 
+	// 더블 클릭 체크, 더블 클릭시에만 물체를 선택 가능다 하도록 한다.
 	if (CurrentTime - LastClickTime < DoubleClickThreshold)
 	{
 		PlacementComponent->TrySelectObject();
@@ -100,31 +102,34 @@ void UPlacementInputComponent::OnSelectObject(const FInputActionValue& Value)
 	LastClickTime = CurrentTime;
 }
 
+// 물체의 회전 입력을 받는다.
 void UPlacementInputComponent::OnRotateAction(const FInputActionValue& Value)
-{
-	if (PlacementComponent)
-	{
-		float ScrollValue = Value.Get<float>();
-		PlacementComponent->RotatePlacement(ScrollValue);
-	}
-}
-
-void UPlacementInputComponent::OnStartPlacing(const FInputActionValue& Value)
 {
 	if (!PlacementComponent) return;
 
-	PlacementComponent->StartPlacing();
+	float ScrollValue = Value.Get<float>();
+	PlacementComponent->RotateObject(ScrollValue);
 }
 
+// 물체 배치 시작 입력을 받는다.
+void UPlacementInputComponent::OnStartPlacement(const FInputActionValue& Value)
+{
+	if (!PlacementComponent) return;
+
+	PlacementComponent->StartPlacement();
+}
+
+// 물체를 배치 확정 입력을 받는다.
 void UPlacementInputComponent::OnConfirmPlacement(const FInputActionValue& Value)
 {
 	if (!PlacementComponent) return;
 
-	if (!PlacementComponent->IsEditMode()) return;
+	if (!PlacementComponent->IsPreviewMode()) return;
 
 	PlacementComponent->ConfirmPlacement();
 }
 
+// 배치 취소 입력을 받는다.
 void UPlacementInputComponent::OnCancelPlacement(const FInputActionValue& Value)
 {
 	if (!PlacementComponent) return;

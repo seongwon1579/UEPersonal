@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "FurnitureSlot.generated.h"
+#include "FurnitureSlotWidget.generated.h"
 
 /**
  * 
@@ -14,9 +14,11 @@ class UTextBlock;
 class UImage;
 class UButton;
 struct FFurnitureItemData;
+class APlayerController;
+class UObjectPlacementComponent;
 
 UCLASS()
-class PROJECT_API UFurnitureSlot : public UUserWidget
+class PROJECT_API UFurnitureSlotWidget : public UUserWidget
 {
 public:
 	void SetSizeBox(float Width, float Height);
@@ -43,4 +45,8 @@ public:
 
 private:
 	FFurnitureItemData* FurnitureItemData;
+	UPROPERTY()
+	APlayerController* OwningPlayerController;
+	UPROPERTY()
+	UObjectPlacementComponent* PlacementComponent;
 };

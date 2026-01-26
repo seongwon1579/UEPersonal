@@ -4,7 +4,7 @@
 #include "Widget/FurnitureSelectionWidget.h"
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
-#include "Widget/FurnitureSlot.h"
+#include "Widget/FurnitureSlotWidget.h"
 #include "Goods/GoodsData/FFurnitureItemData.h"
 
 void UFurnitureSelectionWidget::NativeConstruct()
@@ -30,7 +30,7 @@ void UFurnitureSelectionWidget::PopulateGrid(const TArray<FFurnitureItemData*>& 
     
 	for (int32 i = 0; i < DataArray.Num(); i++)
 	{
-		UFurnitureSlot* NewWidget = CreateWidget<UFurnitureSlot>(this, FurnitureSlot);
+		UFurnitureSlotWidget* NewWidget = CreateWidget<UFurnitureSlotWidget>(this, FurnitureSlot);
 		if (NewWidget)
 		{
 			int32 Row = i / Columns;

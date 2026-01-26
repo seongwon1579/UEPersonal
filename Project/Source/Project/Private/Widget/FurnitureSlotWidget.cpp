@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Widget/FurnitureSlot.h"
+#include "Widget/FurnitureSlotWidget.h"
 
 #include "DebugHelper.h"
 #include "Character/ObjectPlacementComponent.h"
@@ -12,18 +12,19 @@
 #include "Goods/GoodsData/FFurnitureItemData.h"
 
 //TODO: 필요없는 듯
-void UFurnitureSlot::SetSizeBox(float Width, float Height)
+void UFurnitureSlotWidget::SetSizeBox(float Width, float Height)
 {
 	if (!FurnitureSlot_SizeBox) return;
-	
+
 	FurnitureSlot_SizeBox->SetWidthOverride(Width);
 	FurnitureSlot_SizeBox->SetHeightOverride(Height);
 }
-//TODO: 버튼 설정
-void UFurnitureSlot::SetupSlot(FFurnitureItemData* Data)
+
+//슬롯을 세팅한다.
+void UFurnitureSlotWidget::SetupSlot(FFurnitureItemData* Data)
 {
 	FurnitureItemData = Data;
-	
+
 	if (Data->Image)
 	{
 		FSlateBrush Brush;
@@ -34,13 +35,13 @@ void UFurnitureSlot::SetupSlot(FFurnitureItemData* Data)
 
 		FSlateBrush PressedBrush = Brush;
 		PressedBrush.TintColor = FSlateColor(FLinearColor(0.8f, 0.8f, 0.8f, 1.f));
-        
+
 		FButtonStyle NewStyle = FurnitureIconBtn->GetStyle();
 		NewStyle.Normal = Brush;
 		NewStyle.Hovered = HoveredBrush;
 		NewStyle.Pressed = PressedBrush;
 		NewStyle.Disabled = Brush;
-        
+
 		FurnitureIconBtn->SetStyle(NewStyle);
 	}
 
@@ -50,24 +51,22 @@ void UFurnitureSlot::SetupSlot(FFurnitureItemData* Data)
 	}
 }
 
-void UFurnitureSlot::OnButtonClicked()
+// 버튼을 클릭시 물체 배치를 구현할 수 있는 플레이어이면 배치에 필요한 정보를 넘긴다.
+void UFurnitureSlotWidget::OnButtonClicked()
 {
-	if (!FurnitureItemData) return;
+	if (!FurnitureItemData || !PlacementComponent) return;
 	
-	Debug::Print("FurnitureSlot::OnButtonClicked()");
-	
-	APlayerController* PC = GetOwningPlayer();
-	APawn* Pawn = PC->GetPawn();
-	UObjectPlacementComponent* PlacementComp = Pawn->FindComponentByClass<UObjectPlacementComponent>();
-    
-	if (PlacementComp)
-	{
-		PlacementComp->TestMethod(FurnitureItemData);
-	}
+	IObjectPlacementInterface::Execute_PreparePlacement(PlacementComponent, *FurnitureItemData);
 }
 
-void UFurnitureSlot::NativeConstruct()
+void UFurnitureSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	FurnitureIconBtn->OnClicked.AddDynamic(this, &UFurnitureSlot::OnButtonClicked);
+	
+	// 버튼 이벤트 등록
+	FurnitureIconBtn->OnClicked.AddDynamic(this, &UFurnitureSlotWidget::OnButtonClicked);
+
+	// 컴포넌트 캐싱
+	OwningPlayerController = GetOwningPlayer();
+	PlacementComponent = OwningPlayerController->GetPawn()->FindComponentByClass<UObjectPlacementComponent>();
 }

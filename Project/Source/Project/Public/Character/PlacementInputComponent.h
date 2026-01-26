@@ -29,7 +29,7 @@ private:
 	UInputMappingContext* PlacementMappingContext;
     
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	UInputAction* StartPlacingAction;
+	UInputAction* StartPlacementAction;
     
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* ConfirmPlacementAction;
@@ -50,7 +50,7 @@ private:
     
 	void OnSelectObject(const FInputActionValue& Value);
 	void OnRotateAction(const FInputActionValue& Value);
-	void OnStartPlacing(const FInputActionValue& Value);
+	void OnStartPlacement(const FInputActionValue& Value);
 	void OnConfirmPlacement(const FInputActionValue& Value);
 	void OnCancelPlacement(const FInputActionValue& Value);
 };

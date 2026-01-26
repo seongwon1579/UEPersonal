@@ -5,28 +5,49 @@
 #include "Engine/OverlapResult.h"
 #include "Engine/World.h"
 
+void AHomeGoods::SetHomeGoods(UMaterialInterface* Material, UStaticMesh* StaticMesh)
+{
+	HomeGoodsMaterial = Material;
+		
+	if (StaticMesh)
+	{
+		StaticMeshComponent->SetStaticMesh(StaticMesh);
+	}
+    
+	if (Material)
+	{
+		StaticMeshComponent->SetMaterial(0, Material);
+	}
+}
+
 AHomeGoods::AHomeGoods()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	
+	// 스테틱 매시 컴포넌트만 가지는 액터로 생성
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	RootComponent = StaticMeshComponent;
 }
 
-void AHomeGoods::StartEditing()
+void AHomeGoods::StartPreview()
 {
-	if (!HomeGoodsMaterial || !StaticMeshComponent) return;
+	if (!StaticMeshComponent) return;
 	
+	// 프리뷰 모드인경우 선택되지 않도록한다.
 	bIsSelectable = false;
+	
+	// 오버랩으로 변경하여 물체 충돌을 없앤다.
 	StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Overlap);
 }
 
 void AHomeGoods::CheckSpawn()
 {
-	if (!HomeGoodsMaterial || !StaticMeshComponent) return;
+	if (!StaticMeshComponent) return;
 	
 	FVector Location = GetActorLocation();
 	FQuat Quat = GetActorQuat();
 
+	// 현재 메시 크기보다 약간 작은 크기로 바닥 오버랩을 방지한다.
 	FBox LocalBox = StaticMeshComponent->GetStaticMesh()->GetBoundingBox();
 	FVector BoxExtent = LocalBox.GetExtent() * 0.98f;
 
@@ -36,6 +57,7 @@ void AHomeGoods::CheckSpawn()
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
 
+	// 오버랩이 되는 경우를 확인하여 배치가 되는지를 확인한다.
 	TArray<FOverlapResult> Overlaps;
 	bool bIsOverlapping = GetWorld()->OverlapMultiByChannel(
 		Overlaps,
@@ -46,6 +68,7 @@ void AHomeGoods::CheckSpawn()
 		QueryParams
 	);
 
+	// 현재 물체가 다른 물체와 오버랩 한 경우 배치 할 수 없으므로 머테리얼을 빨간색으로 변경
 	if (bIsOverlapping)
 	{
 		StaticMeshComponent->SetMaterial(0, Material_Red);
@@ -57,6 +80,7 @@ void AHomeGoods::CheckSpawn()
 		bCanSpawn = true;
 	}
 
+	// 디버그 모드 일 경우 맵 상에 콜리전이 보이도록 한다.
 	if (!bDebugMode) return;
 	DrawDebugBox(GetWorld(), Location, BoxExtent, Quat,
 	             bIsOverlapping ? FColor::Red : FColor::Green, false, 0.1f);
@@ -64,10 +88,9 @@ void AHomeGoods::CheckSpawn()
 
 void AHomeGoods::Place()
 {
-	if (!bCanSpawn|| !HomeGoodsMaterial) return;
+	if (!bCanSpawn|| !HomeGoodsMaterial || !StaticMeshComponent) return;
 
 	StaticMeshComponent->SetMaterial(0, HomeGoodsMaterial);
-	// StaticMeshComponent->SetCollisionProfileName(TEXT("BlockAllDynamic"));
 
 	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	StaticMeshComponent->SetCollisionObjectType(ECC_WorldDynamic);

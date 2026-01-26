@@ -15,8 +15,6 @@ class PROJECT_API UUIManager : public UObject
 {
 	GENERATED_BODY()
 public:
-	UUIManager();
-	
 	UPROPERTY()
 	TSubclassOf<UPlaceActorWidget> PlaceWidget;
 	

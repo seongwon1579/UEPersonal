@@ -15,22 +15,9 @@ void AACraftPlayerController::BeginPlay()
 	Super::BeginPlay();
 	
 	 if (!WidgetClass) return;
-	//
-	//
-	// PlaceActorWidget = CreateWidget<UPlaceActorWidget>(this, WidgetClass);
-	//
-	// UPlaceableItemSubsystem* PlaceableItemSubsystem = GetGameInstance()->GetSubsystem<UPlaceableItemSubsystem>();
-	// TArray<FFurnitureItemData*> FurnitureItemData = PlaceableItemSubsystem->GetAllFurnitureData();
-	//
-	// if (!FurnitureItemData.IsEmpty())
-	// {
-	// 	PlaceActorWidget->SetupWithData(FurnitureItemData);
-	// }
-	// PlaceActorWidget->AddToViewport();
 	
 	UPlaceableItemSubsystem* PlaceableItemSubsystem = GetGameInstance()->GetSubsystem<UPlaceableItemSubsystem>();
 	PlaceableItemSubsystem->InitializeStaticMeshPool(GetWorld());
-	
 	
 	//TODO: 임시로 플레이어 컨트롤러에서 만듬 
 	UIManager = NewObject<UUIManager>(this);
