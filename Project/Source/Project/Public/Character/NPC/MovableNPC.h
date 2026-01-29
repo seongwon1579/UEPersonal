@@ -3,15 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Animation/AnimInstance.h"
-#include "BaseAnimInstance.generated.h"
+#include "GameFramework/Character.h"
+#include "MovableNPC.generated.h"
 
 /**
  * 
  */
+class UNPCMovableAnimDataAsset;
 UCLASS()
-class PROJECT_API UBaseAnimInstance : public UAnimInstance
+class PROJECT_API AMovableNPC : public ACharacter
 {
 	GENERATED_BODY()
-	
+
 };

@@ -1,12 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/PlacementInputComponent.h"
-
-#include "Character/ObjectPlacementComponent.h"
+#include "Character/Player/Component/PlacementInputComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
+#include "Character/Player/Component/ObjectPlacementComponent.h"
 #include "GameFramework/GameSession.h"
 #include "Kismet/GameplayStatics.h"
 
