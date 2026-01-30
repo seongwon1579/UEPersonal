@@ -21,7 +21,7 @@ UMotionComponent::UMotionComponent()
 void UMotionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	if (!AnimDataAsset) return;
 	
 	// NPCAnimInstance 초기화
@@ -30,6 +30,7 @@ void UMotionComponent::BeginPlay()
 		NPCAnimInstance = Cast<UStationaryNPCAnimInstance>(Mesh->GetAnimInstance());
 		if (NPCAnimInstance)
 		{
+		
 			InitializeAnimData(NPCAnimInstance);
 		}
 	}
@@ -39,7 +40,8 @@ void UMotionComponent::BeginPlay()
 void UMotionComponent::InitializeAnimData(UStationaryNPCAnimInstance* InStationaryNPCAnimInstance)
 {
 	if (!AnimDataAsset) return;
-
+	
 	AnimDataAsset->SetupAnimationInstance(InStationaryNPCAnimInstance);
 	InStationaryNPCAnimInstance->bIsAnimDataReady = true;
+	//InStationaryNPCAnimInstance->ChangeAnimState();
 }

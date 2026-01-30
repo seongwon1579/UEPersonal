@@ -74,6 +74,19 @@ Content/Characters/*
 Content/ThirdPerson/*
 Content/StarterContent/*
 Content/PRSEssentials/*
+Content/Bistrot/*
+Content/KawaiiAnimations/*
+Content/Comix_VFX/*
+Content/DynomegaQuestSystemV2/*
+Content/HighSchool_Env/*
+Content/InteractionKitVol2/*
+Content/Nimikko_JapaneseSchoolLibrary/*
+Content/SFX_OF_FOOTSTEP/*
+Content/StylizedToonBeam01/*
+Content/UISoundEffect/*
+
+
+
 
 # Cache files for the editor to use
 DerivedDataCache/*

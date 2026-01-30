@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Character/NPC/data/IdleAnimData.h"
 #include "NPCStationaryAnimDataAsset.generated.h"
-
 /**
  * 
  */
@@ -16,7 +16,10 @@ class PROJECT_API UNPCStationaryAnimDataAsset : public UPrimaryDataAsset
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	UAnimSequence* IdleAnim;
+	UAnimSequence* BaseAnim = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
+	TArray<FIdleAnimData> IdleAnims;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	UAnimSequence* GreetingAnim;
@@ -24,6 +27,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	UAnimSequence* TalkAnim;
 	
-	// AnimInstance에 AnimSequence를 데이터 어셋으로 초기화
+	// AnimInstance에 AnimSequence를 데이터 에셋으로 초기화
 	virtual void SetupAnimationInstance(UStationaryNPCAnimInstance* AnimInstance);
 };

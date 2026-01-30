@@ -4,7 +4,7 @@
 #include "Widget/FurnitureSlotWidget.h"
 
 #include "DebugHelper.h"
-#include "Character/ObjectPlacementComponent.h"
+#include "Character/Player/Component/ObjectPlacementComponent.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
