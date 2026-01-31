@@ -11,8 +11,7 @@ void UNPCMovableAnimDataAsset::SetupAnimationInstance(UStationaryNPCAnimInstance
 	
 	UMovableNPCAnimInstance* MovableNPCAnimInstance = Cast<UMovableNPCAnimInstance>(AnimInstance);
 	
-	if (MovableNPCAnimInstance)
-	{
-		MovableNPCAnimInstance->WalkAnim = WalkAnim;
-	}
+	if (!MovableNPCAnimInstance) return;
+	
+	MovableNPCAnimInstance->WalkAnim = WalkAnim;
 }

@@ -18,15 +18,13 @@ class PROJECT_API UMotionComponent : public UActorComponent
 public:
 	UMotionComponent();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DataAsset")
+	UPROPERTY(EditAnywhere, Category = "DataSetting")
 	UNPCStationaryAnimDataAsset* AnimDataAsset;
 	
-	UPROPERTY()
-	UStationaryNPCAnimInstance* NPCAnimInstance;
+	UPROPERTY(EditAnywhere, Category = "DataSetting")
+	float IdleBaseDuration = 7.f;
 
 protected:
 	virtual void BeginPlay() override;
-
-private:
 	void InitializeAnimData(UStationaryNPCAnimInstance* InStationaryNPCAnimInstance);
 };

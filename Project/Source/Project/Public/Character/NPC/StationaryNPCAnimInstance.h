@@ -14,7 +14,7 @@
 UENUM()
 enum class EIdlePhase : uint8
 {
-	Start, Loop, End,	
+	Start, Loop, End,
 };
 
 UCLASS()
@@ -23,18 +23,23 @@ class PROJECT_API UStationaryNPCAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 public:
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-	
+	// 애니메이션 끝날때 호출
+	UFUNCTION()
+	void AnimNotify_StartFinished();
 
-	UPROPERTY()
-	UAnimSequence* GreetingAnim;
-
-	UPROPERTY()
-	UAnimSequence* TalkAnim;
+	// 애니메이션 끝날때 호출
+	UFUNCTION()
+	void AnimNotify_EndFinished();
 	
 	UPROPERTY(BlueprintReadOnly)
+	UAnimSequence* GreetingAnim;
+
+	UPROPERTY(BlueprintReadOnly)
+	UAnimSequence* TalkAnim;
+
+	UPROPERTY(BlueprintReadOnly)
 	UAnimSequence* BaseAnim;
-	
+
 	UPROPERTY(BlueprintReadOnly)
 	UAnimSequence* CurrentStartAnim;
 
@@ -43,33 +48,28 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	UAnimSequence* CurrentEndAnim;
-
-	TArray<FIdleAnimData> IdleAnimData;
-	
-	float LoopTimer;
-	float BaseTimer;
 	
 	UPROPERTY(BlueprintReadOnly)
 	EIdlePhase CurrentIdlePhase;
+	
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsIdleVariation = false;
+	
+	TArray<FIdleAnimData> IdleAnimData;
+	
+	void SetupIdleParams(float InIdleBaseDuration, bool bInIsReady);
 
-	UPROPERTY(BlueprintReadOnly)
-	int32 CurrentIndex;
+protected:
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 	
-	UPROPERTY(BlueprintReadOnly)
-	bool bIsAnimDataReady;
+private:
+	void SelectRandomIdleSet();
+	void UpdateBaseIdle(float DeltaSeconds);
+	void UpdateIdleVariation(float DeltaSeconds);
 	
-	UPROPERTY(BlueprintReadOnly)
-	bool bIsIdleVariation;
-	
-	UFUNCTION()
-	void AnimNotify_StartFinished();
-	
-	UFUNCTION()
-	void AnimNotify_EndFinished();
-	
-	void ChangeAnimState();
-	
-	void PlayVariation();
-	
-	
+	bool bIsAnimDataReady = false;
+	float IdleSetTimer = 0.f;
+	float IdleBaseTimer = 0.f;
+	int32 CurrentIndex = 0;
+	float IdleBaseDuration = 0.f;
 };
