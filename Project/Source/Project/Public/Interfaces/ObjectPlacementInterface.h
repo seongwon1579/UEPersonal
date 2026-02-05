@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "Goods/GoodsData/FFurnitureItemData.h"  
+#include "Goods/Data/FFurnitureItemData.h"  
 
 #include "ObjectPlacementInterface.generated.h"
 

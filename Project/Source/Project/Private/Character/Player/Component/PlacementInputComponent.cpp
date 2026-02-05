@@ -6,6 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "Character/Player/Component/ObjectPlacementComponent.h"
+#include "Character/Player/Component/Activity/BoxingActivityComponent.h"
 #include "GameFramework/GameSession.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -51,6 +52,16 @@ void UPlacementInputComponent::BindInputAction(UEnhancedInputComponent* Enhanced
 		EnhancedInputComponent->BindAction(SelectObjectAction, ETriggerEvent::Started,
 		                                   this, &UPlacementInputComponent::OnSelectObject);
 	}
+
+	////////////////////////////////
+
+	EnhancedInputComponent->BindAction(LeftAction, ETriggerEvent::Started, this,
+	                                   &UPlacementInputComponent::OnLeftInput);
+	EnhancedInputComponent->BindAction(RightAction, ETriggerEvent::Started, this,
+	                                   &UPlacementInputComponent::OnRightInput);
+	EnhancedInputComponent->BindAction(UpAction, ETriggerEvent::Started, this, &UPlacementInputComponent::OnUpInput);
+	EnhancedInputComponent->BindAction(EnterAction, ETriggerEvent::Started, this,
+	                                   &UPlacementInputComponent::OnSpaceInput);
 }
 
 void UPlacementInputComponent::BeginPlay()
@@ -58,8 +69,9 @@ void UPlacementInputComponent::BeginPlay()
 	Super::BeginPlay();
 
 	PlacementComponent = GetOwner()->FindComponentByClass<UObjectPlacementComponent>();
+	BoxingComponent = GetOwner()->FindComponentByClass<UBoxingActivityComponent>();
 	if (!PlacementComponent) return;
-	
+
 	APawn* Pawn = Cast<APawn>(GetOwner());
 	if (!Pawn) return;
 
@@ -77,7 +89,7 @@ void UPlacementInputComponent::BeginPlay()
 	{
 		Subsystem->AddMappingContext(PlacementMappingContext, 1);
 	}
-	
+
 	// 인풋 액션 바인딩
 	BindInputAction(EnhancedInputComponent);
 }
@@ -86,7 +98,7 @@ void UPlacementInputComponent::BeginPlay()
 void UPlacementInputComponent::OnSelectObject(const FInputActionValue& Value)
 {
 	if (!PlacementComponent) return;
-	
+
 	// 현재 프리뷰 모드인 경우, 리턴
 	if (PlacementComponent->IsPreviewMode()) return;
 
@@ -135,3 +147,41 @@ void UPlacementInputComponent::OnCancelPlacement(const FInputActionValue& Value)
 
 	PlacementComponent->CancelPlacement();
 }
+
+void UPlacementInputComponent::OnLeftInput()
+{
+	if (!BoxingComponent || !BoxingComponent->IsBoxing()) return;
+	
+	//Debug::Print("LeftButton");
+	BoxingComponent->OnDirectionInput(EPunchDirection::Left);
+}
+
+void UPlacementInputComponent::OnRightInput()
+{
+	if (!BoxingComponent || !BoxingComponent->IsBoxing()) return;
+	
+	//Debug::Print("RightButton");
+	BoxingComponent->OnDirectionInput(EPunchDirection::Right);
+}
+
+void UPlacementInputComponent::OnUpInput()
+{
+	if (!BoxingComponent || !BoxingComponent->IsBoxing()) return;
+	
+	//Debug::Print("UpButton");
+	BoxingComponent->OnDirectionInput(EPunchDirection::Up);
+}
+
+void UPlacementInputComponent::OnSpaceInput()
+{
+	if (!BoxingComponent || !BoxingComponent->IsBoxing()) return;
+	
+	//Debug::Print("SpaceButton");
+	BoxingComponent->OnSpaceBarInput();
+}
+
+// void UPlacementInputComponent::OnInteractionInput()
+// {
+// 	if (!BoxingComponent) return;
+// 	BoxingComponent->StartBoxing();
+// }

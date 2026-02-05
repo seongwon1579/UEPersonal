@@ -4,7 +4,7 @@
 #include "SubSystem/PlaceableItemSubsystem.h"
 
 #include "DebugHelper.h"
-#include "Goods/GoodsData/FFurnitureItemData.h"
+#include "Goods/Data/FFurnitureItemData.h"
 #include "Pool/StaticMeshPool.h"
 
 // 풀을 초기화 한다.

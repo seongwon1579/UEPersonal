@@ -11,16 +11,38 @@
 class UInputMappingContext;
 class UInputAction;
 class UObjectPlacementComponent;
+class UBoxingActivityComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_API UPlacementInputComponent : public UActorComponent
 {
 	GENERATED_BODY()
+	/////////////////////////
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
+	UBoxingActivityComponent* BoxingComponent;
+	///////////////////////
 protected:
 	virtual void BeginPlay() override;
 
 private:
 	UPlacementInputComponent();
+	
+	//////////////////////////////////
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* LeftAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* RightAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* UpAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* EnterAction;
+	
+	
+	///////////////////////////////////
 	
 	UPROPERTY()
 	UObjectPlacementComponent* PlacementComponent;
@@ -53,4 +75,16 @@ private:
 	void OnStartPlacement(const FInputActionValue& Value);
 	void OnConfirmPlacement(const FInputActionValue& Value);
 	void OnCancelPlacement(const FInputActionValue& Value);
+	
+	/////////////////////////
+	
+	void OnLeftInput();
+	void OnRightInput();
+	void OnUpInput();
+	void OnSpaceInput();
+	//void OnInteractionInput();
+	
+	////////////////////////
+	
+	
 };

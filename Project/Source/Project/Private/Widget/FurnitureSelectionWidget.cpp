@@ -5,7 +5,7 @@
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
 #include "Widget/FurnitureSlotWidget.h"
-#include "Goods/GoodsData/FFurnitureItemData.h"
+#include "Goods/Data/FFurnitureItemData.h"
 
 void UFurnitureSelectionWidget::NativeConstruct()
 {

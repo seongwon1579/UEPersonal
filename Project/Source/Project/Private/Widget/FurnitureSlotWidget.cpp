@@ -9,7 +9,7 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Components/SizeBox.h"
-#include "Goods/GoodsData/FFurnitureItemData.h"
+#include "Goods/Data/FFurnitureItemData.h"
 
 //TODO: 필요없는 듯
 void UFurnitureSlotWidget::SetSizeBox(float Width, float Height)

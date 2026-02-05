@@ -6,7 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
 #include "Goods/HomeGoods.h"
-#include "Goods/GoodsData/FFurnitureItemData.h"
+#include "Goods/Data/FFurnitureItemData.h"
 #include "Pool/StaticMeshPool.h"
 #include "SubSystem/PlaceableItemSubsystem.h"
 
