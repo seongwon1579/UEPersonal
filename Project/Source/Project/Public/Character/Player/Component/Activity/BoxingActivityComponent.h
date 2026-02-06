@@ -9,6 +9,7 @@
 
 #include "BoxingActivityComponent.generated.h"
 
+class UBoxingActivityInputComponent;
 class UStatSubsystem;
 class UGameContentSubsystem;
 class UUISubSystem;
@@ -23,20 +24,21 @@ class PROJECT_API UBoxingActivityComponent : public UActorComponent, public IBox
 	GENERATED_BODY()
 
 public:	
-	UFUNCTION()
-	virtual void StartBoxing() override;
 	UFUNCTION(BlueprintCallable)
 	virtual bool IsBoxing() const override;
-	
-	void OnSpaceBarInput();
+	UFUNCTION()
+	virtual void StartBoxing() override;
+	void OnPunchInput();
 	void OnDirectionInput(EPunchDirection Input); 
 	
-	UPROPERTY()
-	TArray<EPunchDirection> CurrentPattern;
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimMontage* PunchMontage;
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimMontage* FailMontage;
+	UPROPERTY()
+	TArray<EPunchDirection> CurrentPattern;
+	UPROPERTY()
+	UBoxingActivityInputComponent* BoxingInputComponent;
 	
 	FOnShowPattern OnShowPattern;
 

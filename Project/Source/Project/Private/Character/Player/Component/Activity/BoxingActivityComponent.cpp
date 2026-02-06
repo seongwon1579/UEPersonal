@@ -4,6 +4,7 @@
 #include "Character/Player/Component/Activity/BoxingActivityComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DebugHelper.h"
+#include "Character/Player/Component/Activity/BoxingActivityInputComponent.h"
 #include "GameFramework/Character.h"
 #include "SubSystem/UISubSystem.h"
 #include "SubSystem/StatSubsystem.h"
@@ -25,12 +26,18 @@ UBoxingActivityComponent::UBoxingActivityComponent()
 
 void UBoxingActivityComponent::StartBoxing()
 {
+	if (!BoxingInputComponent)
+	{
+		Debug::Print("not bind to inputComponent");
+		return;
+	}
+	BoxingInputComponent->EnableBoxingInput(true);
+	
 	bIsBoxing = true;
 	SetABPBoxingState(true);
 	AccumulatedStrength = 0;
 	PatternLength = 3;
 	
-
 	if (MovementComponent)
 	{
 		MovementComponent->SetMovementMode(EMovementMode::MOVE_None);
@@ -58,11 +65,9 @@ bool UBoxingActivityComponent::IsBoxing() const
 	return bIsBoxing;
 }
 
-void UBoxingActivityComponent::OnSpaceBarInput()
+void UBoxingActivityComponent::OnPunchInput()
 {
 	if (!bIsBoxing || !bPatternCompleted) return;
-
-	//Debug::Print("Clear");
 
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 
@@ -123,6 +128,8 @@ void UBoxingActivityComponent::BeginPlay()
 	UISubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UUISubSystem>();
 
 	StatSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UStatSubsystem>();
+	
+	BoxingInputComponent = GetOwner()->GetComponentByClass<UBoxingActivityInputComponent>();
 }
 
 void UBoxingActivityComponent::OnPatternFail()
@@ -133,6 +140,7 @@ void UBoxingActivityComponent::OnPatternFail()
 	bIsBoxing = false;
 
 	AddReward();
+	BoxingInputComponent->EnableBoxingInput(false);
 
 	if (!AnimInstance) return;
 
