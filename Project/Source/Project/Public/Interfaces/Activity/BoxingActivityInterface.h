@@ -23,6 +23,5 @@ class PROJECT_API IBoxingActivityInterface
 
 public:
 	virtual void StartBoxing() = 0;
-	virtual void EndBoxing(const FStatReward& Reward) = 0;
 	virtual bool IsBoxing() const = 0;
 };

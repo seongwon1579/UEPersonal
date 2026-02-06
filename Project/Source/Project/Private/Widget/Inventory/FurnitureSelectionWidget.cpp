@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Widget/FurnitureSelectionWidget.h"
+#include "Widget/Inventory/FurnitureSelectionWidget.h"
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
-#include "Widget/FurnitureSlotWidget.h"
+#include "Widget/Inventory/FurnitureSlotWidget.h"
 #include "Goods/Data/FFurnitureItemData.h"
 
 void UFurnitureSelectionWidget::NativeConstruct()

@@ -33,8 +33,10 @@ void APunchingBag::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
 	AMainPlayer* Player = Cast<AMainPlayer>(OtherActor);
 	if (!Player) return;
 	
+	// 현재 인터렉션 대상을 플레이어에게 전달
 	Player->SetCurrentInteractable(this);
 	
+	// UI를 담당하는 서스시스템에서 인터렉션 UI를 출력
 	UUISubSystem* UISubSystem = GetGameInstance()->GetSubsystem<UUISubSystem>();
 	if (UISubSystem)
 	{

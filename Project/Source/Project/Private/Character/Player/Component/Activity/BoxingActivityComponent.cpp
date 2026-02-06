@@ -6,44 +6,52 @@
 #include "DebugHelper.h"
 #include "GameFramework/Character.h"
 #include "SubSystem/UISubSystem.h"
+#include "SubSystem/StatSubsystem.h"
+
+namespace
+{
+	constexpr EPunchDirection RandomDirections[] = {
+		EPunchDirection::Left,
+		EPunchDirection::Right,
+		EPunchDirection::Up
+	};
+}
 
 // Sets default values for this component's properties
 UBoxingActivityComponent::UBoxingActivityComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
-
-	// ...
 }
 
 void UBoxingActivityComponent::StartBoxing()
 {
 	bIsBoxing = true;
+	SetABPBoxingState(true);
+	AccumulatedStrength = 0;
+	PatternLength = 3;
+	
 
-	ACharacter* Character = Cast<ACharacter>(GetOwner());
-	if (!Character) return;
-
-	UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
-
-	if (MoveComp)
+	if (MovementComponent)
 	{
-		MoveComp->SetMovementMode(EMovementMode::MOVE_None);
+		MovementComponent->SetMovementMode(EMovementMode::MOVE_None);
 	}
-
-	UISubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UUISubSystem>();
 
 	if (UISubsystem)
 	{
 		UISubsystem->ShowBoxingPatternWidget(this);
 	}
-	GeneratePattern();
+
+	OnShowPattern.Broadcast(EPunchDirection::Start);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+	{
+		OnShowPattern.Broadcast(EPunchDirection::None);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]
+		{
+			GeneratePattern();
+		}, 1.f, false);
+	}, 1.f, false);
 }
 
-void UBoxingActivityComponent::EndBoxing(const FStatReward& Reward)
-{
-	bIsBoxing = false;
-}
 
 bool UBoxingActivityComponent::IsBoxing() const
 {
@@ -54,29 +62,19 @@ void UBoxingActivityComponent::OnSpaceBarInput()
 {
 	if (!bIsBoxing || !bPatternCompleted) return;
 
-	Debug::Print("Clear");
+	//Debug::Print("Clear");
 
-	GetWorld()->GetTimerManager().ClearTimer(PatternTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 
-	ACharacter* Character = Cast<ACharacter>(GetOwner());
-	if (!Character) return;
-
-	UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
-	if (AnimInstance)
-	{
-		AnimInstance->Montage_Play(PunchMontage);
-
-		FOnMontageEnded EndDelegate;
-		EndDelegate.BindUObject(this, &UBoxingActivityComponent::OnPunchMontageEnded);
-		AnimInstance->Montage_SetEndDelegate(EndDelegate, PunchMontage);
-	}
+	OnPatternSuccess();
 }
 
 void UBoxingActivityComponent::OnDirectionInput(EPunchDirection Input)
 {
+	// 이미 패턴이 끝났는데 입력이 추가로 들어온 경우
 	if (CurrentPatternIndex >= CurrentPattern.Num())
 	{
-		FailPattern();
+		OnPatternFail();
 		return;
 	}
 
@@ -89,9 +87,10 @@ void UBoxingActivityComponent::OnDirectionInput(EPunchDirection Input)
 			bPatternCompleted = true;
 		}
 	}
+	// 입력을 잘못 눌렀을 경우
 	else
 	{
-		FailPattern();
+		OnPatternFail();
 	}
 }
 
@@ -102,138 +101,137 @@ void UBoxingActivityComponent::GeneratePattern()
 	bPatternCompleted = false;
 	CurrentPatternIndex = 0;
 
-	for (int32 i = 0; i < 9; i++)
+	// 패턴 랜덤으로 생성
+	for (int32 i = 0; i < PatternLength; i++)
 	{
-		int32 Random = FMath::RandRange(0, 2);
-		switch (Random)
-		{
-		case 0:
-			{
-				CurrentPattern.Add(EPunchDirection::Left);
-				Debug::Print("Left");
-				break;
-			}
-		case 1:
-			{
-				Debug::Print("right");
-				CurrentPattern.Add(EPunchDirection::Right);
-				break;
-			}
-		case 2:
-			{
-				Debug::Print("up");
-				CurrentPattern.Add(EPunchDirection::Up);
-				break;
-			}
-		}
+		int32 RandomIndex = FMath::RandRange(0, 2);
+		CurrentPattern.Add(RandomDirections[RandomIndex]);
 	}
-	StartPatternDisplay();
+	OnPatternStart();
 }
 
-void UBoxingActivityComponent::HidePattern()
+void UBoxingActivityComponent::BeginPlay()
 {
-	OnShowPattern.Broadcast(EPunchDirection::None);
+	Super::BeginPlay();
 
-	if (bIsFail) return;
+	if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
+	{
+		MovementComponent = Character->GetCharacterMovement();
+		AnimInstance = Character->GetMesh()->GetAnimInstance();
+	}
 
-	GetWorld()->GetTimerManager().SetTimer(
-		DisplayTimerHandle,
-		this,
-		&UBoxingActivityComponent::NextPatternDisplay,
-		0.2f
-	);
+	UISubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UUISubSystem>();
+
+	StatSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UStatSubsystem>();
 }
 
-void UBoxingActivityComponent::OnPatternTimeout()
+void UBoxingActivityComponent::OnPatternFail()
 {
-	if (!bIsBoxing) return;
-	FailPattern();
-}
-
-void UBoxingActivityComponent::FailPattern()
-{
-	Debug::Print("Failed");
+	//Debug::Print("Failed");
 	bIsFail = true;
+	SetABPBoxingState(false);
+	bIsBoxing = false;
 
-	ACharacter* Character = Cast<ACharacter>(GetOwner());
-	if (!Character) return;
+	AddReward();
 
-	UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
-	if (AnimInstance)
-	{
-		AnimInstance->Montage_Play(FailMontage, 2.5f);
+	if (!AnimInstance) return;
 
-		FOnMontageEnded EndDelegate;
-		EndDelegate.BindUObject(this, &UBoxingActivityComponent::OnFailMontageEnded);
-		AnimInstance->Montage_SetEndDelegate(EndDelegate, FailMontage);
-		bIsBoxing = false;
-	}
+	AnimInstance->Montage_Play(FailMontage, 2.5f);
+
+	FOnMontageEnded EndDelegate;
+	EndDelegate.BindUObject(this, &UBoxingActivityComponent::OnFailAnimEnded);
+	AnimInstance->Montage_SetEndDelegate(EndDelegate, FailMontage);
 }
 
-void UBoxingActivityComponent::OnPunchMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+void UBoxingActivityComponent::OnPunchAnimEnded(UAnimMontage* Montage, bool bInterrupted)
 {
+	AccumulatedStrength++;
+	PatternLength++;
 	GeneratePattern();
 }
 
-void UBoxingActivityComponent::OnFailMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+void UBoxingActivityComponent::OnFailAnimEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	ACharacter* Character = Cast<ACharacter>(GetOwner());
-	if (!Character) return;
+	if (!MovementComponent) return;
 
-	UCharacterMovementComponent* MoveComp = Character->GetCharacterMovement();
-
-	if (MoveComp)
-	{
-		MoveComp->SetMovementMode(EMovementMode::MOVE_Walking);
-	}
+	MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
-void UBoxingActivityComponent::StartPatternDisplay()
+void UBoxingActivityComponent::OnPatternStart()
 {
-	DisplayPatternIndex = 0;
-	NextPatternDisplay();
+	PatternDisplayIndex = 0;
+	OnPatternDisplay();
 }
 
-void UBoxingActivityComponent::NextPatternDisplay()
+void UBoxingActivityComponent::OnPatternDisplay()
 {
-	if (DisplayPatternIndex < CurrentPattern.Num())
-	{
-		OnShowPattern.Broadcast(CurrentPattern[DisplayPatternIndex]);
+	// 종료조건 1. 키입력 실패한 경우
+	if (bIsFail) return;
 
-		DisplayPatternIndex++;
-
-		GetWorld()->GetTimerManager().SetTimer(
-			DisplayTimerHandle,
-			this,
-			&UBoxingActivityComponent::HidePattern,
-			0.3f
-		);
-	}
-	else
+	// 종료조건 2. 키입력을 모두 끝낸 경우
+	if (PatternDisplayIndex >= CurrentPattern.Num())
 	{
-		// Punch 표시
 		OnShowPattern.Broadcast(EPunchDirection::Punch);
-        
-		// 0.5초 후 Punch 숨기고 입력 대기 시작
-		GetWorld()->GetTimerManager().SetTimer(
-			DisplayTimerHandle,
-			this,
-			&UBoxingActivityComponent::HidePunchAndStartInput,
-			1.f
-		);
+
+		// 펀치 UI 지우고
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+		{
+			OnShowPattern.Broadcast(EPunchDirection::None);
+
+			// 미지막 키 입력 제한 시간 추가
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+			{
+				if (!bIsBoxing) return; 
+				OnPatternFail();
+			}, 0.5f, false);
+		}, 1.f, false);
+		return;
 	}
+
+	// 현재 패턴 디스플레이
+	OnShowPattern.Broadcast(CurrentPattern[PatternDisplayIndex]);
+	PatternDisplayIndex++;
+
+	// 현재 패턴 UI 지우고 재귀
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+	{
+		OnShowPattern.Broadcast(EPunchDirection::None);
+
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+		{
+			// 재귀 호출을 하면서 UI의 현재 키입력을 업데이트 한다.
+			OnPatternDisplay();
+		}, 0.3f, false);
+	}, 0.2f, false);
 }
 
-void UBoxingActivityComponent::HidePunchAndStartInput()
+void UBoxingActivityComponent::AddReward()
 {
-	OnShowPattern.Broadcast(EPunchDirection::None);
-    
-	float AdjustedTime = 10.f;
-	GetWorld()->GetTimerManager().SetTimer(
-		PatternTimerHandle,
-		this,
-		&UBoxingActivityComponent::OnPatternTimeout,
-		AdjustedTime
-	);
+	if (!StatSubsystem) return;
 
+	FStatReward Reward;
+	Reward.Stats.Add(EPlayerStatType::Strength, AccumulatedStrength);
+	StatSubsystem->ApplyReward(Reward);
+}
+
+void UBoxingActivityComponent::OnPatternSuccess()
+{
+	if (!AnimInstance || !PunchMontage) return;
+
+	AnimInstance->Montage_Play(PunchMontage);
+
+	FOnMontageEnded EndDelegate;
+	EndDelegate.BindUObject(this, &UBoxingActivityComponent::OnPunchAnimEnded);
+	AnimInstance->Montage_SetEndDelegate(EndDelegate, PunchMontage);
+}
+
+void UBoxingActivityComponent::SetABPBoxingState(bool bBoxing)
+{
+	if (!AnimInstance) return;
+	
+	FProperty* Prop = AnimInstance->GetClass()->FindPropertyByName(FName("IsBoxing"));
+	if (FBoolProperty* BoolProp = CastField<FBoolProperty>(Prop))
+	{
+		BoolProp->SetPropertyValue_InContainer(AnimInstance, bBoxing);
+	}
 }

@@ -15,6 +15,7 @@ class PROJECT_API AMainPlayer : public AProjectCharacter
 	GENERATED_BODY()
 
 public:
+	// 현재 인터럭션 인스턴스 set
 	void SetCurrentInteractable(AActor* InInteractable) { CurrentInteractable = InInteractable; }
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -22,12 +23,12 @@ public:
 	
 private:
 	virtual void BeginPlay() override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	
+	void OnInteractInput();	
+	void BindInputActions();
 
 	UPROPERTY()
 	AActor* CurrentInteractable;
 	
-	
-	void OnInteractInput();
-	
-	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 };

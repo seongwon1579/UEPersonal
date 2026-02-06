@@ -10,6 +10,7 @@
 
 #include "ObjectPlacementComponent.generated.h"
 
+class UStatSubsystem;
 struct FFurnitureItemData;
 class AHomeGoods;
 class UPlaceableItemSubsystem;
@@ -37,6 +38,9 @@ private:
 	void UpdatePlacementPreview();
 	void ResetPlacement();
 	void SetupPreview();
+	
+	UPROPERTY()
+	UStatSubsystem* StatSubsystem;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Placement", meta = (AllowPrivateAccess = "true"))
 	float PlacementRange = 1500.f;

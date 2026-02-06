@@ -12,7 +12,7 @@
 
 class UInteractionWidget;
 class UUISubSystem;
-
+class UPlayerStatWidget;
 class UPlaceActorWidget;
 class UBoxingPatternWidget;
 
@@ -32,6 +32,10 @@ class PROJECT_API AAMainPlayerController : public APlayerController
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UInteractionWidget> InteractionWidgetClass;
 	
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UPlayerStatWidget> PlayerStatWidgetClass;
+	
+	
 	UPROPERTY()
 	UPlaceActorWidget* PlaceActorWidget;
 	
@@ -43,6 +47,9 @@ class PROJECT_API AAMainPlayerController : public APlayerController
 
 	UPROPERTY()
 	UUISubSystem* UISubSystem;
+	
+	UPROPERTY()
+	UPlayerStatWidget* PlayerStatWidget;
 
 private:
 	void CreateWidgets();

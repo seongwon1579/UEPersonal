@@ -27,6 +27,8 @@ enum class EPlayerStatType : uint8
 	Strength,
 	Endurance,
 	Flexibility,
+	
+	End UMETA(Hidden) 
 };
 
 // 스탯 보상

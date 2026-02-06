@@ -11,13 +11,14 @@ void UBoxingPatternWidget::InitWidget(UBoxingActivityComponent* InComponent)
 	BoxingActivityComponent = InComponent;
 
 	if (!BoxingActivityComponent) return;
-
+	// 델리게이트 구독
 	BoxingActivityComponent->OnShowPattern.AddUObject(this, &UBoxingPatternWidget::HandleShowPattern);
 }
 
 void UBoxingPatternWidget::NativeDestruct()
 {
 	if (!BoxingActivityComponent) return;
+	// 델리게이트 구독 취소
 	BoxingActivityComponent->OnShowPattern.RemoveAll(this);
 
 	Super::NativeDestruct();
@@ -55,9 +56,10 @@ void UBoxingPatternWidget::HandleShowPattern(EPunchDirection Direction)
 			Direction_TextBlock->SetText(FText::FromString(TEXT("PUNCH!")));
 			break;
 		}
+	case EPunchDirection::Start:
+		{
+			Direction_TextBlock->SetText(FText::FromString(TEXT("Start!")));
+			break;
+		}
 	}
-}
-
-void UBoxingPatternWidget::HandlePatternDisplayComplete()
-{
 }

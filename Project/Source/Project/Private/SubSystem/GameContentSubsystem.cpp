@@ -31,14 +31,8 @@ void UGameContentSubsystem::EndUnlockable()
 
 void UGameContentSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
-	Collection.InitializeDependency<UStatSubsystem>();
 	Super::Initialize(Collection);
+	Collection.InitializeDependency<UStatSubsystem>();
 
 	StatSubsystem = GetGameInstance()->GetSubsystem<UStatSubsystem>();
-	
-	// FStatReward TestReward;
-	//
-	// TestReward.Stats.Add(EPlayerStatType::Strength, 10);
-	
-	// StatSubsystem->ApplyReward(TestReward);
 }

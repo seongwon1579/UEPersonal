@@ -5,9 +5,11 @@
 #include "DebugHelper.h"
 #include "SubSystem/PlaceableItemSubsystem.h"
 #include "SubSystem/UISubSystem.h"
-#include "Widget/PlaceActorWidget.h"
+
+#include "Widget/Inventory/PlaceActorWidget.h"
 #include "Widget/Activity/BoxingPatternWidget.h"
 #include "widget/Interaction/InteractionWidget.h"
+#include "widget/PlayerStat/PlayerStatWidget.h"
 
 void AAMainPlayerController::BeginPlay()
 {
@@ -25,12 +27,13 @@ void AAMainPlayerController::CreateWidgets()
 	PlaceActorWidget = CreateWidget<UPlaceActorWidget>(this, PlaceActorWidgetClass);
 	BoxingPatternWidget = CreateWidget<UBoxingPatternWidget>(this, BoxingPatternWidgetClass);
 	InteractionWidget = CreateWidget<UInteractionWidget>(this, InteractionWidgetClass);
+	PlayerStatWidget = CreateWidget<UPlayerStatWidget>(this, PlayerStatWidgetClass);
 	
-	if (!PlaceActorWidget || !BoxingPatternWidget || !InteractionWidget) return;
+	if (!PlaceActorWidget || !BoxingPatternWidget || !InteractionWidget || !PlayerStatWidget) return;
 	
 	UISubSystem = GetGameInstance()->GetSubsystem<UUISubSystem>();
 	
 	if (!UISubSystem) return;
 	
-	UISubSystem->RegisterWidgets(PlaceActorWidget, BoxingPatternWidget, InteractionWidget);
+	UISubSystem->RegisterWidgets(PlaceActorWidget, BoxingPatternWidget, InteractionWidget, PlayerStatWidget);
 }

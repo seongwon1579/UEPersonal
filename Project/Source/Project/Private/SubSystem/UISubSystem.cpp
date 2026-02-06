@@ -5,9 +5,10 @@
 
 #include "Blueprint/UserWidget.h"
 #include "SubSystem/PlaceableItemSubsystem.h"
-#include "Widget/PlaceActorWidget.h"
+#include "Widget/Inventory/PlaceActorWidget.h"
 #include "Widget/Activity/BoxingPatternWidget.h"
 #include "Widget/Interaction/InteractionWidget.h"
+#include "Widget/PlayerStat/PlayerStatWidget.h"
 
 void UUISubSystem::ShowPlaceActorWidget()
 {
@@ -57,9 +58,22 @@ void UUISubSystem::HideInteractionWidget()
 	InteractionWidget->RemoveFromParent();
 }
 
-void UUISubSystem::RegisterWidgets(UPlaceActorWidget* InPlaceActorWidget, UBoxingPatternWidget* InBoxingPatternWidget, UInteractionWidget* InInteractionWidget)
+void UUISubSystem::ShowPlayerStatWidget()
+{
+	if (!PlayerStatWidget) return;
+	PlayerStatWidget->AddToViewport();
+}
+
+void UUISubSystem::HidePlayerStatWidget()
+{
+	if (!PlayerStatWidget) return;
+	PlayerStatWidget->RemoveFromParent();
+}
+
+void UUISubSystem::RegisterWidgets(UPlaceActorWidget* InPlaceActorWidget, UBoxingPatternWidget* InBoxingPatternWidget, UInteractionWidget* InInteractionWidget, UPlayerStatWidget* InPlayerStatWidget)
 {
 	PlaceActorWidget = InPlaceActorWidget;
 	BoxingPatternWidget = InBoxingPatternWidget;
 	InteractionWidget = InInteractionWidget;
+	PlayerStatWidget = InPlayerStatWidget;
 }

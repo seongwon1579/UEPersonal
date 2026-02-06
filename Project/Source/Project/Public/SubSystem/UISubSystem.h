@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
+#include "Subsystems/GameInstanceSubsystem.h"
 #include "UISubSystem.generated.h"
 
 /**
@@ -12,9 +12,11 @@
 class UPlaceActorWidget;
 class UBoxingPatternWidget;
 class UInteractionWidget;
+class UPlayerStatWidget;
 
 class UBoxingActivityComponent;
 
+// TODO: 자동화 필요 
 UCLASS()
 class PROJECT_API UUISubSystem : public UGameInstanceSubsystem
 {
@@ -30,7 +32,11 @@ public:
 	UPROPERTY()
 	UInteractionWidget* InteractionWidget;
 	
+	UPROPERTY()
+	UPlayerStatWidget* PlayerStatWidget;
+	
 	// 물건 배치
+	UFUNCTION(blueprintCallable)
 	void ShowPlaceActorWidget();
 	void HidePlaceActorWidget();
 	
@@ -42,5 +48,11 @@ public:
 	void ShowInteractionWidget();
 	void HideInteractionWidget();
 	
-	void RegisterWidgets(UPlaceActorWidget* InPlaceActorWidget, UBoxingPatternWidget* InBoxingPatternWidget, UInteractionWidget* InInteractionWidget );
+	// 스텟
+	UPlayerStatWidget* GetPlayerStatWidget() { return PlayerStatWidget;};
+	UFUNCTION(blueprintCallable)
+	void ShowPlayerStatWidget();
+	void HidePlayerStatWidget();
+	
+	FORCEINLINE void RegisterWidgets(UPlaceActorWidget* InPlaceActorWidget, UBoxingPatternWidget* InBoxingPatternWidget, UInteractionWidget* InInteractionWidget, UPlayerStatWidget* InPlayerStatWidget );
 };

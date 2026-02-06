@@ -9,7 +9,8 @@
 #include "Goods/Data/FFurnitureItemData.h"
 #include "Pool/StaticMeshPool.h"
 #include "SubSystem/PlaceableItemSubsystem.h"
-
+#include "SubSystem/StatSubsystem.h"
+#include "SubSystem/Data/ContentData.h"
 
 void UObjectPlacementComponent::BeginPlay()
 {
@@ -22,6 +23,7 @@ void UObjectPlacementComponent::BeginPlay()
 	}
 
 	PlaceableItemSubsystem = GetOwner()->GetGameInstance()->GetSubsystem<UPlaceableItemSubsystem>();
+	StatSubsystem = GetOwner()->GetGameInstance()->GetSubsystem<UStatSubsystem>();
 }
 
 UObjectPlacementComponent::UObjectPlacementComponent()
@@ -90,12 +92,25 @@ void UObjectPlacementComponent::StartPlacement()
 
 // 데이터를 바탕으로 객체 생성준비
 void UObjectPlacementComponent::PreparePlacement_Implementation(const FFurnitureItemData& ItemData)
-{
+{	
+	// 현재 아이템을 배치 할 수 있는 근력량이 있는지 체크
+	if (!StatSubsystem) return;
+	
+	TMap<EPlayerStatType, int32> CurrentStats = StatSubsystem->GetCurrentStats();
+	
+	if (CurrentStats[EPlayerStatType::Strength] < ItemData.Strength)
+	{
+		Debug::Print("Over Strength");
+		return;
+	}
+	
 	HomeGoods = PlaceableItemSubsystem->GetStaticMeshPool()->GetHomeGoods();
 
 	if (!HomeGoods) return;
 
 	HomeGoods->SetHomeGoods(ItemData.Material, ItemData.Mesh);
+	
+	StartPlacement();
 }
 
 // 객체를 배치를 확정하기전 프리뷰 이미지를 보여준다.

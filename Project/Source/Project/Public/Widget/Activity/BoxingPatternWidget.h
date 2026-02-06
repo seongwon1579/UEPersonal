@@ -27,7 +27,6 @@ protected:
 
 private:
 	void HandleShowPattern(EPunchDirection Direction);
-	void HandlePatternDisplayComplete();
 
 	UPROPERTY(meta =(BindWidget))
 	UTextBlock* Direction_TextBlock;
