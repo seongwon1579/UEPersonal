@@ -20,7 +20,7 @@ public:
 	void Place();
 	void StartPreview();
 	bool CanSpawn() const { return bCanSpawn;}
-	void SetHomeGoods(UMaterialInterface* Material, UStaticMesh* StaticMesh);
+	void SetHomeGoods(const TArray<UMaterialInterface*>& Materials, UStaticMesh* StaticMesh);
 
 private:	
 	AHomeGoods();
@@ -34,8 +34,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Materials",meta = (AllowPrivateAccess = "true"))
 	UMaterialInterface* Material_Red;
 	
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Materials",meta = (AllowPrivateAccess = "true"))
+	// UMaterialInterface* HomeGoodsMaterial;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Materials",meta = (AllowPrivateAccess = "true"))
-	UMaterialInterface* HomeGoodsMaterial;
+	TArray<UMaterialInterface*> HomeGoodsMaterials;
 	
 	UPROPERTY(EditAnywhere, Blueprintable, Category = "DebugMode",meta = (AllowPrivateAccess = "true"))
 	bool bDebugMode = false;

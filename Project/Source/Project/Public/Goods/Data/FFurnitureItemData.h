@@ -12,8 +12,11 @@ struct FFurnitureItemData: public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMesh* Mesh = nullptr;
 
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	// UMaterialInterface* Material = nullptr;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UMaterialInterface* Material = nullptr;
+	TArray<UMaterialInterface*> Materials; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* Image = nullptr;

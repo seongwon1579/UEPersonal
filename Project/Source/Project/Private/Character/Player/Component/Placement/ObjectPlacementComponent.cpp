@@ -90,6 +90,19 @@ void UObjectPlacementComponent::StartPlacement()
 	SetupPreview();
 }
 
+void UObjectPlacementComponent::RemoveObject()
+{
+	if (!bIsPreview || !HomeGoods) return;
+	
+	if (bIsNewPlacing) return;
+	
+	if (PlaceableItemSubsystem && PlaceableItemSubsystem->GetStaticMeshPool())
+	{
+		PlaceableItemSubsystem->GetStaticMeshPool()->ReturnHomeGoods(HomeGoods);
+	}
+	ResetPlacement();
+}
+
 // 데이터를 바탕으로 객체 생성준비
 void UObjectPlacementComponent::PreparePlacement_Implementation(const FFurnitureItemData& ItemData)
 {	
@@ -108,7 +121,8 @@ void UObjectPlacementComponent::PreparePlacement_Implementation(const FFurniture
 
 	if (!HomeGoods) return;
 
-	HomeGoods->SetHomeGoods(ItemData.Material, ItemData.Mesh);
+	//HomeGoods->SetHomeGoods(ItemData.Material, ItemData.Mesh);
+	HomeGoods->SetHomeGoods(ItemData.Materials, ItemData.Mesh);
 	
 	StartPlacement();
 }

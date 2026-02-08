@@ -29,6 +29,7 @@ private:
 	void OnStartPlacement(const FInputActionValue& Value);
 	void OnConfirmPlacement(const FInputActionValue& Value);
 	void OnCancelPlacement(const FInputActionValue& Value);
+	void OnRemoveObject(const FInputActionValue& Value);
 	
 	UPROPERTY()
 	UObjectPlacementComponent* PlacementComponent;
@@ -50,6 +51,9 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* SelectObjectAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* RemoveObjectAction;
 	
 	float LastClickTime = 0.f;
 	float DoubleClickThreshold = 0.3f; 

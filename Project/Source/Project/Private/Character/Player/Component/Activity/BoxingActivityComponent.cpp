@@ -14,7 +14,8 @@ namespace
 	constexpr EPunchDirection RandomDirections[] = {
 		EPunchDirection::Left,
 		EPunchDirection::Right,
-		EPunchDirection::Up
+		EPunchDirection::Up,
+		EPunchDirection::Down
 	};
 }
 
@@ -109,7 +110,7 @@ void UBoxingActivityComponent::GeneratePattern()
 	// 패턴 랜덤으로 생성
 	for (int32 i = 0; i < PatternLength; i++)
 	{
-		int32 RandomIndex = FMath::RandRange(0, 2);
+		int32 RandomIndex = FMath::RandRange(0, 3);
 		CurrentPattern.Add(RandomDirections[RandomIndex]);
 	}
 	OnPatternStart();

@@ -27,6 +27,7 @@ public:
 	void TrySelectObject();
 	void RotateObject(float Direction);
 	bool IsPreviewMode() const { return bIsPreview; }
+	void RemoveObject();
 
 	virtual void PreparePlacement_Implementation(const FFurnitureItemData& ItemData) override;
 

@@ -13,6 +13,7 @@
  */
 class UBoxingActivityComponent;
 class UTextBlock;
+class UImage;
 
 UCLASS()
 class PROJECT_API UBoxingPatternWidget : public UUserWidget
@@ -28,8 +29,30 @@ protected:
 private:
 	void HandleShowPattern(EPunchDirection Direction);
 
+	// UPROPERTY(meta =(BindWidget))
+	// UTextBlock* Direction_TextBlock;
+	
 	UPROPERTY(meta =(BindWidget))
-	UTextBlock* Direction_TextBlock;
+	UImage* Direction_Image;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Pattern Images")
+	UTexture2D* Right_Texture;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Pattern Images")
+	UTexture2D* Left_Texture;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Pattern Images")
+	UTexture2D* Up_Texture;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Pattern Images")
+	UTexture2D* Down_Texture;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Pattern Images")
+	UTexture2D* Punch_Texture;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Pattern Images")
+	UTexture2D* Start_Texture;
+	
 	
 	UPROPERTY()
 	UBoxingActivityComponent* BoxingActivityComponent;

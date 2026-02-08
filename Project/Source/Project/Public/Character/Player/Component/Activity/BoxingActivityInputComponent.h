@@ -24,6 +24,7 @@ public:
 	void OnLeftInput();
 	void OnRightInput();
 	void OnUpInput();
+	void OnDownInput();
 	void OnPunchInput();
 	void EnableBoxingInput(bool Enable);
 	
@@ -38,6 +39,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* UpAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* DownAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* PunchAction;

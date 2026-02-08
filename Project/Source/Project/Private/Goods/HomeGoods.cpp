@@ -5,18 +5,36 @@
 #include "Engine/OverlapResult.h"
 #include "Engine/World.h"
 
-void AHomeGoods::SetHomeGoods(UMaterialInterface* Material, UStaticMesh* StaticMesh)
+void AHomeGoods::SetHomeGoods(const TArray<UMaterialInterface*>& Materials, UStaticMesh* StaticMesh)
 {
-	HomeGoodsMaterial = Material;
-		
+	// HomeGoodsMaterial = Material;
+	// 	
+	// if (StaticMesh)
+	// {
+	// 	StaticMeshComponent->SetStaticMesh(StaticMesh);
+	// }
+ //    
+	// if (Material)
+	// {
+	// 	StaticMeshComponent->SetMaterial(0, Material);
+	// }
+	
+	if (!StaticMeshComponent) return;
+	
 	if (StaticMesh)
 	{
 		StaticMeshComponent->SetStaticMesh(StaticMesh);
 	}
-    
-	if (Material)
+	
+	HomeGoodsMaterials = Materials;
+	
+	const int32 NumSlots = StaticMeshComponent->GetNumMaterials();
+	for (int32 i = 0; i < HomeGoodsMaterials.Num() && i < NumSlots; i++)
 	{
-		StaticMeshComponent->SetMaterial(0, Material);
+		if (HomeGoodsMaterials[i])
+		{
+			StaticMeshComponent->SetMaterial(i, HomeGoodsMaterials[i]);
+		}
 	}
 }
 
@@ -67,18 +85,27 @@ void AHomeGoods::CheckSpawn()
 		FCollisionShape::MakeBox(BoxExtent),
 		QueryParams
 	);
+	
+	const int32 NumSlots = StaticMeshComponent->GetNumMaterials();
+	UMaterialInterface* PreviewMaterial = bIsOverlapping ? Material_Red : Material_Green;
+	
+	for (int32 i = 0; i  < NumSlots; i++)
+	{
+		StaticMeshComponent->SetMaterial(i, PreviewMaterial);
+	}
+	bCanSpawn = !bIsOverlapping;
 
 	// 현재 물체가 다른 물체와 오버랩 한 경우 배치 할 수 없으므로 머테리얼을 빨간색으로 변경
-	if (bIsOverlapping)
-	{
-		StaticMeshComponent->SetMaterial(0, Material_Red);
-		bCanSpawn = false;
-	}
-	else
-	{
-		StaticMeshComponent->SetMaterial(0, Material_Green);
-		bCanSpawn = true;
-	}
+	// if (bIsOverlapping)
+	// {
+	// 	StaticMeshComponent->SetMaterial(0, Material_Red);
+	// 	bCanSpawn = false;
+	// }
+	// else
+	// {
+	// 	StaticMeshComponent->SetMaterial(0, Material_Green);
+	// 	bCanSpawn = true;
+	// }
 
 	// 디버그 모드 일 경우 맵 상에 콜리전이 보이도록 한다.
 	if (!bDebugMode) return;
@@ -88,10 +115,20 @@ void AHomeGoods::CheckSpawn()
 
 void AHomeGoods::Place()
 {
-	if (!bCanSpawn|| !HomeGoodsMaterial || !StaticMeshComponent) return;
-
-	StaticMeshComponent->SetMaterial(0, HomeGoodsMaterial);
-
+	//if (!bCanSpawn|| !HomeGoodsMaterial || !StaticMeshComponent) return;
+	//StaticMeshComponent->SetMaterial(0, HomeGoodsMaterial);
+	
+	if (!bCanSpawn || HomeGoodsMaterials.Num() == 0 || !StaticMeshComponent) return;
+	
+	const int32 NumSlots = StaticMeshComponent->GetNumMaterials();
+	for (int32 i = 0; i < HomeGoodsMaterials.Num() && i < NumSlots; i++)
+	{
+		if (HomeGoodsMaterials[i])
+		{
+			StaticMeshComponent->SetMaterial(i, HomeGoodsMaterials[i]);
+		}
+	}
+	
 	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	StaticMeshComponent->SetCollisionObjectType(ECC_WorldDynamic);
 	StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);

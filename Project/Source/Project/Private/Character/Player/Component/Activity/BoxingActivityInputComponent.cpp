@@ -58,6 +58,11 @@ void UBoxingActivityInputComponent::BindInputActions(UEnhancedInputComponent* En
 		EnhancedInputComponent->BindAction(UpAction, ETriggerEvent::Started, this,
 		                                   &UBoxingActivityInputComponent::OnUpInput);
 	}
+	if (DownAction)
+	{
+		EnhancedInputComponent->BindAction(DownAction, ETriggerEvent::Started, this,
+										   &UBoxingActivityInputComponent::OnDownInput);
+	}
 	if (PunchAction)
 	{
 		EnhancedInputComponent->BindAction(PunchAction, ETriggerEvent::Started, this,
@@ -84,6 +89,13 @@ void UBoxingActivityInputComponent::OnUpInput()
 	if (!BoxingComponent || !BoxingComponent->IsBoxing()) return;
 
 	BoxingComponent->OnDirectionInput(EPunchDirection::Up);
+}
+
+void UBoxingActivityInputComponent::OnDownInput()
+{
+	if (!BoxingComponent || !BoxingComponent->IsBoxing()) return;
+
+	BoxingComponent->OnDirectionInput(EPunchDirection::Down);
 }
 
 void UBoxingActivityInputComponent::OnPunchInput()

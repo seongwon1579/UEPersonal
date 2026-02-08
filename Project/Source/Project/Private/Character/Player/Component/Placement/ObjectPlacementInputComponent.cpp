@@ -13,15 +13,6 @@
 UObjectPlacementInputComponent::UObjectPlacementInputComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-
-	// // IMC 로드
-	// static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMC_Asset(
-	// 	TEXT("/Game/_BP/Input/IMC_Placement.IMC_Placement"));
-	//
-	// if (IMC_Asset.Succeeded())
-	// {
-	// 	PlacementMappingContext = IMC_Asset.Object;
-	// }
 }
 
 // 사용자 입력 이벤트를 바인딩 한다.
@@ -51,6 +42,11 @@ void UObjectPlacementInputComponent::BindInputAction(UEnhancedInputComponent* En
 	{
 		EnhancedInputComponent->BindAction(SelectObjectAction, ETriggerEvent::Started,
 		                                   this, &UObjectPlacementInputComponent::OnSelectObject);
+	}
+	if (RemoveObjectAction)
+	{
+		EnhancedInputComponent->BindAction(RemoveObjectAction, ETriggerEvent::Started, 
+			this, &UObjectPlacementInputComponent::OnRemoveObject);
 	}
 	
 }
@@ -136,4 +132,11 @@ void UObjectPlacementInputComponent::OnCancelPlacement(const FInputActionValue& 
 	if (!PlacementComponent) return;
 
 	PlacementComponent->CancelPlacement();
+}
+
+void UObjectPlacementInputComponent::OnRemoveObject(const FInputActionValue& Value)
+{
+	if (!PlacementComponent) return;
+	
+	PlacementComponent->RemoveObject();
 }
