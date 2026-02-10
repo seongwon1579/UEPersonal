@@ -82,32 +82,23 @@ void UStationaryNPCAnimInstance::UpdateIdleVariation(float DeltaSeconds)
     
 	if (IdleSetTimer >= IdleAnimData[CurrentIndex].LoopDuration)
 	{
+		IdleSetTimer = 0.f;
 		CurrentIdlePhase = EIdlePhase::End;
 	}
 }
 
 void UStationaryNPCAnimInstance::AnimNotify_StartFinished()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("StartFinished"))
-	
 	// loop animation이 있는경우 loop duration 동안 loop 진행
 	if (IdleAnimData[CurrentIndex].LoopAnim)
 	{
-		IdleSetTimer = 0.f;
 		CurrentIdlePhase = EIdlePhase::Loop;
-	}
-	// loop가 없는 하나의 sequence로 이뤄진 애니메이션은 해당 애니메이션 진행 후 base로 이동
-	else
-	{
-		bIsIdleVariation = false;
-		CurrentIdlePhase = EIdlePhase::Start;
 	}
 }
 
 // End 애니메이션이 끝나면 애니메이션을 변경한다.
 void UStationaryNPCAnimInstance::AnimNotify_EndFinished()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("EndFinished"))
 	bIsIdleVariation = false;
 	CurrentIdlePhase = EIdlePhase::Start;
 }

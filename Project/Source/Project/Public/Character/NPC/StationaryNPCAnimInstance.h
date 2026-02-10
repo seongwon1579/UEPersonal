@@ -29,7 +29,7 @@ public:
 
 	// 애니메이션 끝날때 호출
 	UFUNCTION()
-	void AnimNotify_EndFinished();
+	virtual void AnimNotify_EndFinished();
 	
 	UPROPERTY(BlueprintReadOnly)
 	UAnimSequence* GreetingAnim;
@@ -61,6 +61,7 @@ public:
 
 protected:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+	float IdleBaseTimer = 0.f;
 	
 private:
 	void SelectRandomIdleSet();
@@ -69,7 +70,6 @@ private:
 	
 	bool bIsAnimDataReady = false;
 	float IdleSetTimer = 0.f;
-	float IdleBaseTimer = 0.f;
 	int32 CurrentIndex = 0;
 	float IdleBaseDuration = 0.f;
 };
