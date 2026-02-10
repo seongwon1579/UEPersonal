@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "FurnitureSlotWidget.generated.h"
+#include "PlaceableItemSlotWidget.generated.h"
 
 /**
  * 
@@ -13,28 +13,28 @@ class USizeBox;
 class UTextBlock;
 class UImage;
 class UButton;
-struct FFurnitureItemData;
+struct FPlaceableItemData;
 class APlayerController;
 class UObjectPlacementComponent;
 
 UCLASS()
-class PROJECT_API UFurnitureSlotWidget : public UUserWidget
+class PROJECT_API UPlaceableItemSlotWidget : public UUserWidget
 {
 public:
 	void SetSizeBox(float Width, float Height);
-	void SetupSlot(FFurnitureItemData* Data);
+	void SetupSlot(FPlaceableItemData* Data);
 
 	GENERATED_BODY()
 
 	UPROPERTY(meta = (BindWidget))
 	USizeBox* FurnitureSlot_SizeBox;
-
+	
 	UPROPERTY(meta = (BindWidget))
 	UImage* FurnitureSlot_Thumbnail_Image;
-
+	
 	UPROPERTY(meta =(BindWidget))
 	UButton* FurnitureIconBtn;
-
+	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* FurnitureSlot_Name_TextBlock;
 
@@ -44,7 +44,7 @@ public:
 	virtual void NativeConstruct() override;
 
 private:
-	FFurnitureItemData* FurnitureItemData;
+	FPlaceableItemData* FurnitureItemData;
 	UPROPERTY()
 	APlayerController* OwningPlayerController;
 	UPROPERTY()

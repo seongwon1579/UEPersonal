@@ -5,7 +5,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "SubSystem/PlaceableItemSubsystem.h"
-#include "Widget/Inventory/PlaceActorWidget.h"
+#include "Widget/Inventory/PlaceableItemInventoryWidget.h"
 #include "Widget/Activity/BoxingPatternWidget.h"
 #include "Widget/Interaction/InteractionWidget.h"
 #include "Widget/PlayerStat/PlayerStatWidget.h"
@@ -15,21 +15,22 @@ void UUISubSystem::ShowPlaceActorWidget()
 	if (!PlaceActorWidget) return;
 
 	UPlaceableItemSubsystem* PlaceableItemSubsystem = GetGameInstance()->GetSubsystem<UPlaceableItemSubsystem>();
-	TArray<FFurnitureItemData*> FurnitureItemData = PlaceableItemSubsystem->GetAllFurnitureData();
-
-	// 데이터를 가지고 위젯을 초기화한다.
-	if (!FurnitureItemData.IsEmpty())
+	
+	for (uint8 i = 0; i < static_cast<uint8>(EPlaceableItemType::End); i++)
 	{
-		PlaceActorWidget->SetupWithData(FurnitureItemData);
+		EPlaceableItemType ItemType = static_cast<EPlaceableItemType>(i);
+		TArray<FPlaceableItemData*> ItemData = PlaceableItemSubsystem->GetPlaceableItemData(ItemType);
+		
+		PlaceActorWidget->SetupWithData(ItemType, ItemData);
 	}
-
-	PlaceActorWidget->AddToViewport();
+	
+	PlaceActorWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UUISubSystem::HidePlaceActorWidget()
 {
 	if (!PlaceActorWidget) return;
-	PlaceActorWidget->RemoveFromParent();
+	PlaceActorWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UUISubSystem::ShowBoxingPatternWidget(UBoxingActivityComponent* InBoxingActivityComponent)
@@ -37,40 +38,40 @@ void UUISubSystem::ShowBoxingPatternWidget(UBoxingActivityComponent* InBoxingAct
 	if (!BoxingPatternWidget || !InBoxingActivityComponent) return;
 	
 	BoxingPatternWidget->InitWidget(InBoxingActivityComponent);
-	BoxingPatternWidget->AddToViewport();
+	BoxingPatternWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UUISubSystem::HideBoxingPatternWidget()
 {
 	if (!BoxingPatternWidget) return;
-	BoxingPatternWidget->RemoveFromParent();
+	BoxingPatternWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UUISubSystem::ShowInteractionWidget()
 {
 	if (!InteractionWidget) return;
-	InteractionWidget->AddToViewport();
+	InteractionWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UUISubSystem::HideInteractionWidget()
 {
 	if (!InteractionWidget) return;
-	InteractionWidget->RemoveFromParent();
+	InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UUISubSystem::ShowPlayerStatWidget()
 {
 	if (!PlayerStatWidget) return;
-	PlayerStatWidget->AddToViewport();
+	PlayerStatWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UUISubSystem::HidePlayerStatWidget()
 {
 	if (!PlayerStatWidget) return;
-	PlayerStatWidget->RemoveFromParent();
+	PlayerStatWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
-void UUISubSystem::RegisterWidgets(UPlaceActorWidget* InPlaceActorWidget, UBoxingPatternWidget* InBoxingPatternWidget, UInteractionWidget* InInteractionWidget, UPlayerStatWidget* InPlayerStatWidget)
+void UUISubSystem::RegisterWidgets(UPlaceableItemInventoryWidget* InPlaceActorWidget, UBoxingPatternWidget* InBoxingPatternWidget, UInteractionWidget* InInteractionWidget, UPlayerStatWidget* InPlayerStatWidget)
 {
 	PlaceActorWidget = InPlaceActorWidget;
 	BoxingPatternWidget = InBoxingPatternWidget;

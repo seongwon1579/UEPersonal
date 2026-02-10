@@ -9,7 +9,7 @@
 /**
  * 
  */
-class UPlaceActorWidget;
+class UPlaceableItemInventoryWidget;
 class UBoxingPatternWidget;
 class UInteractionWidget;
 class UPlayerStatWidget;
@@ -27,7 +27,7 @@ public:
 	UBoxingPatternWidget* BoxingPatternWidget;
 	
 	UPROPERTY()
-	UPlaceActorWidget* PlaceActorWidget;
+	UPlaceableItemInventoryWidget* PlaceActorWidget;
 	
 	UPROPERTY()
 	UInteractionWidget* InteractionWidget;
@@ -54,5 +54,5 @@ public:
 	void ShowPlayerStatWidget();
 	void HidePlayerStatWidget();
 	
-	FORCEINLINE void RegisterWidgets(UPlaceActorWidget* InPlaceActorWidget, UBoxingPatternWidget* InBoxingPatternWidget, UInteractionWidget* InInteractionWidget, UPlayerStatWidget* InPlayerStatWidget );
+	FORCEINLINE void RegisterWidgets(UPlaceableItemInventoryWidget* InPlaceActorWidget, UBoxingPatternWidget* InBoxingPatternWidget, UInteractionWidget* InInteractionWidget, UPlayerStatWidget* InPlayerStatWidget );
 };

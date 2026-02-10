@@ -13,7 +13,7 @@
 class UInteractionWidget;
 class UUISubSystem;
 class UPlayerStatWidget;
-class UPlaceActorWidget;
+class UPlaceableItemInventoryWidget;
 class UBoxingPatternWidget;
 
 UCLASS()
@@ -24,7 +24,7 @@ class PROJECT_API AAMainPlayerController : public APlayerController
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<UPlaceActorWidget> PlaceActorWidgetClass;
+	TSubclassOf<UPlaceableItemInventoryWidget> PlaceActorWidgetClass;
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UBoxingPatternWidget> BoxingPatternWidgetClass;
@@ -37,7 +37,7 @@ class PROJECT_API AAMainPlayerController : public APlayerController
 	
 	
 	UPROPERTY()
-	UPlaceActorWidget* PlaceActorWidget;
+	UPlaceableItemInventoryWidget* PlaceActorWidget;
 	
 	UPROPERTY()
 	UBoxingPatternWidget* BoxingPatternWidget;

@@ -4,7 +4,6 @@
 #include "SubSystem/PlaceableItemSubsystem.h"
 
 #include "DebugHelper.h"
-#include "Goods/Data/FFurnitureItemData.h"
 #include "Pool/StaticMeshPool.h"
 
 // 풀을 초기화 한다.
@@ -21,17 +20,32 @@ void UPlaceableItemSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 	
-	FurnitureDataTable = LoadObject<UDataTable>(nullptr, TEXT("/Game/_BP/Goods/Data/DT_Furniture.DT_Furniture"));
+	LoadDataTable(EPlaceableItemType::Building, TEXT("/Game/_BP/Goods/Data/DT_Building.DT_Building"));
+	LoadDataTable(EPlaceableItemType::Interior, TEXT("/Game/_BP/Goods/Data/DT_Interior.DT_Interior"));
+	LoadDataTable(EPlaceableItemType::Exterior, TEXT("/Game/_BP/Goods/Data/DT_Exterior.DT_Exterior"));
 }
 
-
-// 데이터 테이블에서 데이터를 가져온다.
-TArray<FFurnitureItemData*> UPlaceableItemSubsystem::GetAllFurnitureData()
+// 데이터 로드
+void UPlaceableItemSubsystem::LoadDataTable(EPlaceableItemType Type, const TCHAR* Path)
 {
-	TArray<FFurnitureItemData*> Result;
-	if (FurnitureDataTable)
+	if (UDataTable* DataTable = LoadObject<UDataTable>(nullptr, Path))
 	{
-		FurnitureDataTable->GetAllRows<FFurnitureItemData>(TEXT("GetAllFurnitureData"), Result);
+		PlaceableItemData.Add(Type, DataTable);
 	}
+}
+
+// 데이터 Get
+TArray<FPlaceableItemData*> UPlaceableItemSubsystem::GetPlaceableItemData(EPlaceableItemType ItemType)
+{
+	TArray<FPlaceableItemData*> Result;
+	
+	if (UDataTable* Data = PlaceableItemData.FindRef(ItemType))
+	{
+		Data->GetAllRows<FPlaceableItemData>(TEXT("GetBuildingData"), Result);
+
+		//Debug::Print(Result[0]->Name.ToString());
+	}
+	
 	return Result;
 }
+

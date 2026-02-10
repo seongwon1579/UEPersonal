@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "Goods/Data/FFurnitureItemData.h"  
+#include "Goods/Data/FPlaceableItemData.h"  
 
 #include "ObjectPlacementInterface.generated.h"
 
@@ -24,5 +24,5 @@ class PROJECT_API IObjectPlacementInterface
 
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Placement")
-	void PreparePlacement(const FFurnitureItemData& ItemData);
+	void PreparePlacement(const FPlaceableItemData& ItemData);
 };

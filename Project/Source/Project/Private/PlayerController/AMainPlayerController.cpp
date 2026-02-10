@@ -6,7 +6,7 @@
 #include "SubSystem/PlaceableItemSubsystem.h"
 #include "SubSystem/UISubSystem.h"
 
-#include "Widget/Inventory/PlaceActorWidget.h"
+#include "Widget/Inventory/PlaceableItemInventoryWidget.h"
 #include "Widget/Activity/BoxingPatternWidget.h"
 #include "widget/Interaction/InteractionWidget.h"
 #include "widget/PlayerStat/PlayerStatWidget.h"
@@ -24,12 +24,22 @@ void AAMainPlayerController::BeginPlay()
 // 플레이어 위젯을 생성하고 UISubSystem에 위젯을 등록한다.
 void AAMainPlayerController::CreateWidgets()
 {
-	PlaceActorWidget = CreateWidget<UPlaceActorWidget>(this, PlaceActorWidgetClass);
+	PlaceActorWidget = CreateWidget<UPlaceableItemInventoryWidget>(this, PlaceActorWidgetClass);
 	BoxingPatternWidget = CreateWidget<UBoxingPatternWidget>(this, BoxingPatternWidgetClass);
 	InteractionWidget = CreateWidget<UInteractionWidget>(this, InteractionWidgetClass);
 	PlayerStatWidget = CreateWidget<UPlayerStatWidget>(this, PlayerStatWidgetClass);
 	
 	if (!PlaceActorWidget || !BoxingPatternWidget || !InteractionWidget || !PlayerStatWidget) return;
+	
+	PlaceActorWidget->AddToViewport();
+	BoxingPatternWidget->AddToViewport();
+	InteractionWidget->AddToViewport();
+	PlayerStatWidget->AddToViewport();
+	
+	PlaceActorWidget->SetVisibility(ESlateVisibility::Collapsed);
+	BoxingPatternWidget->SetVisibility(ESlateVisibility::Collapsed);
+	InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
+	PlayerStatWidget->SetVisibility(ESlateVisibility::Collapsed);
 	
 	UISubSystem = GetGameInstance()->GetSubsystem<UUISubSystem>();
 	

@@ -6,7 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
 #include "Goods/HomeGoods.h"
-#include "Goods/Data/FFurnitureItemData.h"
+#include "Goods/Data/FPlaceableItemData.h"
 #include "Pool/StaticMeshPool.h"
 #include "SubSystem/PlaceableItemSubsystem.h"
 #include "SubSystem/StatSubsystem.h"
@@ -96,6 +96,7 @@ void UObjectPlacementComponent::RemoveObject()
 	
 	if (bIsNewPlacing) return;
 	
+	// 배치된 액터를 삭제할 경우 pool에 현재 액터를 반환한다.
 	if (PlaceableItemSubsystem && PlaceableItemSubsystem->GetStaticMeshPool())
 	{
 		PlaceableItemSubsystem->GetStaticMeshPool()->ReturnHomeGoods(HomeGoods);
@@ -104,7 +105,7 @@ void UObjectPlacementComponent::RemoveObject()
 }
 
 // 데이터를 바탕으로 객체 생성준비
-void UObjectPlacementComponent::PreparePlacement_Implementation(const FFurnitureItemData& ItemData)
+void UObjectPlacementComponent::PreparePlacement_Implementation(const FPlaceableItemData& ItemData)
 {	
 	// 현재 아이템을 배치 할 수 있는 근력량이 있는지 체크
 	if (!StatSubsystem) return;

@@ -11,7 +11,7 @@
 #include "ObjectPlacementComponent.generated.h"
 
 class UStatSubsystem;
-struct FFurnitureItemData;
+struct FPlaceableItemData;
 class AHomeGoods;
 class UPlaceableItemSubsystem;
 
@@ -29,7 +29,7 @@ public:
 	bool IsPreviewMode() const { return bIsPreview; }
 	void RemoveObject();
 
-	virtual void PreparePlacement_Implementation(const FFurnitureItemData& ItemData) override;
+	virtual void PreparePlacement_Implementation(const FPlaceableItemData& ItemData) override;
 
 protected:
 	virtual void BeginPlay() override;

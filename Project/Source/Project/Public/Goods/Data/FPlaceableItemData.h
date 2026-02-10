@@ -2,10 +2,19 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h" 
-#include "FFurnitureItemData.generated.h" 
+#include "FPlaceableItemData.generated.h"
+
+UENUM()
+enum class EPlaceableItemType : uint8
+{
+	Building,
+	Exterior,
+	Interior,
+	End,
+};
 
 USTRUCT(BlueprintType)
-struct FFurnitureItemData: public FTableRowBase
+struct FPlaceableItemData: public FTableRowBase
 {
 	GENERATED_BODY()
 	

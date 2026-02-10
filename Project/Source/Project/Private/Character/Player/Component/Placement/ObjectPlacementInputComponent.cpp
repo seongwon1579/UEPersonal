@@ -6,9 +6,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "Character/Player/Component/Placement//ObjectPlacementComponent.h"
-#include "Character/Player/Component/Activity/BoxingActivityComponent.h"
-#include "GameFramework/GameSession.h"
-#include "Kismet/GameplayStatics.h"
+#include "GameFramework/PlayerController.h"
+#include "SubSystem/UISubSystem.h"
 
 UObjectPlacementInputComponent::UObjectPlacementInputComponent()
 {
@@ -48,7 +47,11 @@ void UObjectPlacementInputComponent::BindInputAction(UEnhancedInputComponent* En
 		EnhancedInputComponent->BindAction(RemoveObjectAction, ETriggerEvent::Started, 
 			this, &UObjectPlacementInputComponent::OnRemoveObject);
 	}
-	
+	if (InventoryToggleAction)
+	{
+		EnhancedInputComponent->BindAction(InventoryToggleAction, ETriggerEvent::Started, 
+			this, &UObjectPlacementInputComponent::OnToggleInventory);
+	}
 }
 
 void UObjectPlacementInputComponent::BeginPlay()
@@ -66,15 +69,17 @@ void UObjectPlacementInputComponent::BeginPlay()
 	if (!EnhancedInputComponent) return;
 
 	// 배치 모드 입력 매핑 등록
-	APlayerController* PC = Cast<APlayerController>(Pawn->GetController());
-	if (!PC) return;
+	PlayerController= Cast<APlayerController>(Pawn->GetController());
+	if (!PlayerController) return;
 
 	if (!PlacementMappingContext) return;
 	
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(PlacementMappingContext, 1);
 	}
+	
+	UISubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UUISubSystem>();
 
 	// 인풋 액션 바인딩
 	BindInputAction(EnhancedInputComponent);
@@ -139,4 +144,26 @@ void UObjectPlacementInputComponent::OnRemoveObject(const FInputActionValue& Val
 	if (!PlacementComponent) return;
 	
 	PlacementComponent->RemoveObject();
+}
+
+void UObjectPlacementInputComponent::OnToggleInventory(const FInputActionValue& Value)
+{
+	if (bIsInventoryOpened)
+	{
+		PlayerController->SetInputMode(FInputModeGameOnly());
+		PlayerController->SetShowMouseCursor(false);
+		UISubsystem->HidePlaceActorWidget();
+	}
+	else
+	{
+		
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        
+		PlayerController->SetInputMode(InputMode);
+		PlayerController->SetShowMouseCursor(true);
+		UISubsystem->ShowPlaceActorWidget();
+	}
+	
+	bIsInventoryOpened = !bIsInventoryOpened;
 }

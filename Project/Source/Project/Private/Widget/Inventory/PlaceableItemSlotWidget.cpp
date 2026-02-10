@@ -1,17 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Widget/Inventory/FurnitureSlotWidget.h"
+#include "Widget/Inventory/PlaceableItemSlotWidget.h"
 
 #include "DebugHelper.h"
 #include "Character/Player/Component/Placement/ObjectPlacementComponent.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/SizeBox.h"
-#include "Goods/Data/FFurnitureItemData.h"
+#include "Goods/Data/FPlaceableItemData.h"
 
 //TODO: 필요없는 듯
-void UFurnitureSlotWidget::SetSizeBox(float Width, float Height)
+void UPlaceableItemSlotWidget::SetSizeBox(float Width, float Height)
 {
 	if (!FurnitureSlot_SizeBox) return;
 
@@ -20,7 +20,7 @@ void UFurnitureSlotWidget::SetSizeBox(float Width, float Height)
 }
 
 //슬롯을 세팅한다.
-void UFurnitureSlotWidget::SetupSlot(FFurnitureItemData* Data)
+void UPlaceableItemSlotWidget::SetupSlot(FPlaceableItemData* Data)
 {
 	FurnitureItemData = Data;
 
@@ -51,19 +51,19 @@ void UFurnitureSlotWidget::SetupSlot(FFurnitureItemData* Data)
 }
 
 // 버튼을 클릭시 물체 배치를 구현할 수 있는 플레이어이면 배치에 필요한 정보를 넘긴다.
-void UFurnitureSlotWidget::OnButtonClicked()
+void UPlaceableItemSlotWidget::OnButtonClicked()
 {
 	if (!FurnitureItemData || !PlacementComponent) return;
 	
 	IObjectPlacementInterface::Execute_PreparePlacement(PlacementComponent, *FurnitureItemData);
 }
 
-void UFurnitureSlotWidget::NativeConstruct()
+void UPlaceableItemSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
 	// 버튼 이벤트 등록
-	FurnitureIconBtn->OnClicked.AddDynamic(this, &UFurnitureSlotWidget::OnButtonClicked);
+	FurnitureIconBtn->OnClicked.AddDynamic(this, &UPlaceableItemSlotWidget::OnButtonClicked);
 
 	// 컴포넌트 캐싱
 	OwningPlayerController = GetOwningPlayer();

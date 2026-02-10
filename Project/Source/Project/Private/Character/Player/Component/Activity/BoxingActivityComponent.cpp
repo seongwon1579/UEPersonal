@@ -72,6 +72,7 @@ void UBoxingActivityComponent::OnPunchInput()
 
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 
+	OnShowPattern.Broadcast(EPunchDirection::None);
 	OnPatternSuccess();
 }
 
@@ -138,6 +139,7 @@ void UBoxingActivityComponent::OnPatternFail()
 	//Debug::Print("Failed");
 	bIsFail = true;
 	SetABPBoxingState(false);
+	UISubsystem->HideBoxingPatternWidget();
 	bIsBoxing = false;
 
 	AddReward();

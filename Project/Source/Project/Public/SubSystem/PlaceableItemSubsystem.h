@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Goods/Data/FPlaceableItemData.h"
+
 #include "PlaceableItemSubsystem.generated.h"
 
 /**
@@ -12,7 +14,7 @@
 
 class UDataTable;
 class AStaticMeshPool;
-struct FFurnitureItemData;
+struct FPlaceableItemData;
 
 UCLASS()
 class PROJECT_API UPlaceableItemSubsystem : public UGameInstanceSubsystem
@@ -20,20 +22,20 @@ class PROJECT_API UPlaceableItemSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
-	void InitializeStaticMeshPool(UWorld* World);
 	AStaticMeshPool* GetStaticMeshPool() { return StaticMeshPool;};
+	void InitializeStaticMeshPool(UWorld* World);
+	
+	TArray<FPlaceableItemData*> GetPlaceableItemData(EPlaceableItemType ItemType);
+	
 private:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	void LoadDataTable(EPlaceableItemType Type, const TCHAR* Path);
 	
-	UPROPERTY()
-	UDataTable* FurnitureDataTable;
-
 	UPROPERTY()
 	AStaticMeshPool* StaticMeshPool;
 
 	UPROPERTY()
 	TSubclassOf<AStaticMeshPool> StaticMeshPoolClass;
-
-public:
-	TArray<FFurnitureItemData*> GetAllFurnitureData();
+	
+	TMap<EPlaceableItemType, UDataTable*> PlaceableItemData;
 };

@@ -12,6 +12,7 @@ class UInputMappingContext;
 class UInputAction;
 class UObjectPlacementComponent;
 class UBoxingActivityComponent;
+class UUISubSystem;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_API UObjectPlacementInputComponent : public UActorComponent
@@ -30,9 +31,16 @@ private:
 	void OnConfirmPlacement(const FInputActionValue& Value);
 	void OnCancelPlacement(const FInputActionValue& Value);
 	void OnRemoveObject(const FInputActionValue& Value);
+	void OnToggleInventory(const FInputActionValue& Value);
 	
 	UPROPERTY()
 	UObjectPlacementComponent* PlacementComponent;
+	
+	UPROPERTY()
+	UUISubSystem* UISubsystem;
+	
+	UPROPERTY()
+	APlayerController* PlayerController;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* PlacementMappingContext;
@@ -55,7 +63,11 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* RemoveObjectAction;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* InventoryToggleAction;
+	
 	float LastClickTime = 0.f;
-	float DoubleClickThreshold = 0.3f; 
+	float DoubleClickThreshold = 0.3f;
+	bool bIsInventoryOpened = false;
 	
 };
