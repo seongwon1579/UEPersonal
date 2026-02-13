@@ -25,7 +25,7 @@ public:
 	void EndDialogue();
 	
 	void OnChoiceInput(int32 OptionIndex);
-	bool IsInDialogue() const {return bIsInDialogue;};
+	bool IsInDialogue() const {return bIsInDialogue;}
 	
 	FString GetCurrentNPCName() const;
 	FText GetCurrentNPCText() const;

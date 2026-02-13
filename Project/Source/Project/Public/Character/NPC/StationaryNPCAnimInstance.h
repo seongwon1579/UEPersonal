@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DebugHelper.h"
 #include "Animation/AnimInstance.h"
 #include "Character/NPC/Data/IdleAnimData.h"
 #include "StationaryNPCAnimInstance.generated.h"
@@ -10,6 +11,8 @@
 /**
  * 
  */
+
+enum class EDialogueReaction : uint8;
 
 UENUM()
 enum class EIdlePhase : uint8
@@ -50,21 +53,18 @@ public:
 	UAnimSequence* CurrentEndAnim;
 	
 	UPROPERTY(BlueprintReadOnly)
-	EIdlePhase CurrentIdlePhase = EIdlePhase::End;
+	EIdlePhase CurrentIdlePhase = EIdlePhase::None;
 	
-	UPROPERTY(BlueprintReadOnly)
-	bool bIsTest2;
-	
-	UPROPERTY(BlueprintReadOnly)
-	bool bIsIdleVariation = false;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Idle Settings")
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IdleSet Data")
 	TArray<FIdleAnimData> IdleAnimData;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Dialogue")
+	TMap<EDialogueReaction, UAnimMontage*> ReactionMontages;
 	
 	void SetupIdleParams(float InIdleBaseDuration, bool bInIsReady);
 	void StartDialogue();
 	void EndDialogue();
+	void PlayReaction(EDialogueReaction Reaction);
 
 protected:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
@@ -77,6 +77,7 @@ private:
 	
 	bool bIsAnimDataReady = false;
 	bool bIsDialogue = false;
+	bool bIsInDialogue = false;
 	float IdleSetTimer = 0.f;
 	int32 CurrentIndex = 0;
 	float IdleBaseDuration = 0.f;

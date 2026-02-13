@@ -13,6 +13,7 @@ void UNPCStationaryAnimDataAsset::SetupAnimationInstance(UStationaryNPCAnimInsta
 	AnimInstance->GreetingAnim = GreetingAnim;
 	AnimInstance->TalkAnim = TalkAnim;
 	AnimInstance->BaseAnim = BaseAnim;
+	AnimInstance->ReactionMontages = ReactionMontages;
 	
 	// if (IdleAnims.Num() > 0)
 	// {

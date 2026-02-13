@@ -13,6 +13,8 @@ class USkeletalMeshComponent;
 class USphereComponent;
 class USceneComponent;
 class UNPCMovableAnimDataAsset;
+class UStationaryNPCAnimInstance;
+class UWidgetComponent;
 
 UCLASS()
 class PROJECT_API AStationaryNPC : public AActor , public IInteractableInterface, public IDialogueableInterface
@@ -21,6 +23,9 @@ class PROJECT_API AStationaryNPC : public AActor , public IInteractableInterface
 
 public:
 	AStationaryNPC();
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UWidgetComponent* InteractionWidgetComp;
 	
 	virtual void Interact(AActor* OtherActor) override;
 	virtual bool CanInteract() const override;
@@ -58,9 +63,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "NPC|Animation")
 	TMap<EDialogueReaction, UAnimMontage*> ReactionMontages;
 	
+	UPROPERTY()
+	UStationaryNPCAnimInstance* StationaryNPCAnimInstance;
+	
 	FOnNPCResponded OnNPCResponded;
 	
 private:
+	virtual void BeginPlay() override;
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
