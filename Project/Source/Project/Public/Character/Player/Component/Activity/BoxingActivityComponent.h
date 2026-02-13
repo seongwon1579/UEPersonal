@@ -19,15 +19,15 @@ class AnimInstance;
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnShowPattern, EPunchDirection)
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECT_API UBoxingActivityComponent : public UActorComponent, public IBoxingActivityInterface
+class PROJECT_API UBoxingActivityComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	UFUNCTION(BlueprintCallable)
-	virtual bool IsBoxing() const override;
+	bool IsBoxing() const;
 	UFUNCTION()
-	virtual void StartBoxing() override;
+	void StartBoxing();
 	void OnPunchInput();
 	void OnDirectionInput(EPunchDirection Input); 
 	

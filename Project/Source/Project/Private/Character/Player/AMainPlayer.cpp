@@ -7,41 +7,58 @@
 #include "EnhancedInputComponent.h"
 #include "Activity/PunchingBag.h"
 #include "Character/Player/Component/Activity/BoxingActivityComponent.h"
+#include "Character/Player/Component/Dialogue/DialogueComponent.h"
+
+bool AMainPlayer::IsBoxing() const
+{
+	if (!BoxingComp) return false;
+	return BoxingComp->IsBoxing();
+}
+
+void AMainPlayer::StartBoxing()
+{
+	if (!BoxingComp) return;
+	BoxingComp->StartBoxing();
+}
+
+bool AMainPlayer::CanDialogue()
+{
+	if (!DialogueComp) return false;
+	return !DialogueComp->IsInDialogue();
+}
+
+void AMainPlayer::StartDialogue(AActor* OtherActor)
+{
+	if (!DialogueComp || !OtherActor) return;
+	DialogueComp->StartDialogue(OtherActor);
+}
 
 void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+	BoxingComp = FindComponentByClass<UBoxingActivityComponent>();
+	DialogueComp = FindComponentByClass<UDialogueComponent>();
 }
 
 // 키입력에 바인딩(키입력시 호출)
 void AMainPlayer::OnInteractInput()
 {
-	// 현재 인터렉션이 무었인지 확인
-	if (!Cast<APunchingBag>(CurrentInteractable)) return;
+	if (!CurrentInteractable) return;
 
-	// 복싱 컴포넌트 캐스팅
-	UBoxingActivityComponent* BoxingComp = FindComponentByClass<UBoxingActivityComponent>();
-	if (!BoxingComp) return;
+	IInteractableInterface* Interactable = Cast<IInteractableInterface>(CurrentInteractable);
+	if (!Interactable) return;
 
-	// 복싱 컴포넌트가 복싱을 구현하고 있으면 로직 시작
-	if (IBoxingActivityInterface* BoxingActivity = Cast<IBoxingActivityInterface>(BoxingComp))
+	if (Interactable->CanInteract())
 	{
-		// 현재 복싱을 하고 있으면 리턴(반복된 상호작용을 방지)
-		if (BoxingActivity->IsBoxing()) return;
-		
-		// 복싱 로직 시작
-		BoxingActivity->StartBoxing();
+		Interactable->Interact(this);
 	}
-}
-
-void AMainPlayer::BindInputActions()
-{
 }
 
 void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	
+
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AMainPlayer::OnInteractInput);

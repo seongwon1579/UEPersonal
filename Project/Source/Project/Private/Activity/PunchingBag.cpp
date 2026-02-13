@@ -5,6 +5,7 @@
 
 #include "DebugHelper.h"
 #include "Character/Player/AMainPlayer.h"
+#include "Character/Player/Component/Activity/BoxingActivityComponent.h"
 #include "Components/BoxComponent.h"
 #include "SubSystem/UISubSystem.h"
 
@@ -27,8 +28,23 @@ void APunchingBag::BeginPlay()
 	}
 }
 
+bool APunchingBag::CanInteract() const
+{
+	return true;
+}
+
+void APunchingBag::Interact(AActor* Interactor)
+{
+	IBoxingActivityInterface* BoxingInterface = Cast<IBoxingActivityInterface>(Interactor);
+	if (!BoxingInterface) return;
+
+	if (BoxingInterface->IsBoxing()) return;
+
+	BoxingInterface->StartBoxing();
+}
+
 void APunchingBag::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AMainPlayer* Player = Cast<AMainPlayer>(OtherActor);
 	if (!Player) return;

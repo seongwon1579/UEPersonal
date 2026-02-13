@@ -15,14 +15,21 @@ void UStationaryNPCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (!bIsAnimDataReady) return;
 	
-	if (!bIsIdleVariation)
-	{
-		UpdateBaseIdle(DeltaSeconds);
-	}
-	else
+	// if (!bIsIdleVariation)
+	// {
+	// 	UpdateBaseIdle(DeltaSeconds);
+	// }
+	// else
+	// {
+	// 	UpdateIdleVariation(DeltaSeconds);
+	// }
+	
+	if (CurrentIdlePhase == EIdlePhase::Start)
 	{
 		UpdateIdleVariation(DeltaSeconds);
+		return;
 	}
+	UpdateBaseIdle(DeltaSeconds);
 }
 
 // 애니메이션을 가중치에 따라 랜덤으로 변경한다.
@@ -69,7 +76,8 @@ void UStationaryNPCAnimInstance::UpdateBaseIdle(float DeltaSeconds)
 	{
 		IdleBaseTimer = 0.f;
 		SelectRandomIdleSet();
-		bIsIdleVariation = true;
+		//bIsIdleVariation = true;
+		CurrentIdlePhase = EIdlePhase::Start;
 	}
 }
 
@@ -99,6 +107,6 @@ void UStationaryNPCAnimInstance::AnimNotify_StartFinished()
 // End 애니메이션이 끝나면 애니메이션을 변경한다.
 void UStationaryNPCAnimInstance::AnimNotify_EndFinished()
 {
-	bIsIdleVariation = false;
-	CurrentIdlePhase = EIdlePhase::Start;
+	//bIsIdleVariation = false;
+	CurrentIdlePhase = EIdlePhase::End;
 }

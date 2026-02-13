@@ -15,6 +15,7 @@ class UUISubSystem;
 class UPlayerStatWidget;
 class UPlaceableItemInventoryWidget;
 class UBoxingPatternWidget;
+class UDialogueWidget;
 
 UCLASS()
 class PROJECT_API AAMainPlayerController : public APlayerController
@@ -35,6 +36,8 @@ class PROJECT_API AAMainPlayerController : public APlayerController
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UPlayerStatWidget> PlayerStatWidgetClass;
 	
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UDialogueWidget> DialogueWidgetClass;	
 	
 	UPROPERTY()
 	UPlaceableItemInventoryWidget* PlaceActorWidget;
@@ -50,6 +53,9 @@ class PROJECT_API AAMainPlayerController : public APlayerController
 	
 	UPROPERTY()
 	UPlayerStatWidget* PlayerStatWidget;
+	
+	UPROPERTY()
+	UDialogueWidget* DialogueWidget;
 
 private:
 	void CreateWidgets();

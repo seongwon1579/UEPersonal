@@ -4,24 +4,26 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interfaces/Interaction/InteractableInterface.h"
 
 #include "PunchingBag.generated.h"
 
 class UBoxComponent;
 UCLASS()
-class PROJECT_API APunchingBag : public AActor
+class PROJECT_API APunchingBag : public AActor, public IInteractableInterface
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	APunchingBag();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
+	virtual bool CanInteract() const override;
+	FORCEINLINE virtual void Interact(AActor* Interactor) override;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boxing")
 	UStaticMeshComponent* PunchingBagMesh;
 

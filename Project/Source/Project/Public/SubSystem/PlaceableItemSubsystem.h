@@ -37,5 +37,6 @@ private:
 	UPROPERTY()
 	TSubclassOf<AStaticMeshPool> StaticMeshPoolClass;
 	
+	UPROPERTY()
 	TMap<EPlaceableItemType, UDataTable*> PlaceableItemData;
 };

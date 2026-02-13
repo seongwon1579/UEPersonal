@@ -3,10 +3,12 @@
 
 #include "SubSystem//UISubSystem.h"
 
+#include "DebugHelper.h"
 #include "Blueprint/UserWidget.h"
 #include "SubSystem/PlaceableItemSubsystem.h"
 #include "Widget/Inventory/PlaceableItemInventoryWidget.h"
 #include "Widget/Activity/BoxingPatternWidget.h"
+#include "Widget/Dialogue/DialogueWidget.h"
 #include "Widget/Interaction/InteractionWidget.h"
 #include "Widget/PlayerStat/PlayerStatWidget.h"
 
@@ -71,10 +73,25 @@ void UUISubSystem::HidePlayerStatWidget()
 	PlayerStatWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
-void UUISubSystem::RegisterWidgets(UPlaceableItemInventoryWidget* InPlaceActorWidget, UBoxingPatternWidget* InBoxingPatternWidget, UInteractionWidget* InInteractionWidget, UPlayerStatWidget* InPlayerStatWidget)
+void UUISubSystem::ShowDialogueWidget(UDialogueComponent* InDialogueComponent)
+{
+	if (!DialogueWidget || !InDialogueComponent) return;
+	
+	DialogueWidget->InitWidget(InDialogueComponent);
+	DialogueWidget->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UUISubSystem::HideDialogueWidget()
+{
+	if (!DialogueWidget) return;
+	DialogueWidget->SetVisibility(ESlateVisibility::Collapsed);
+}
+
+void UUISubSystem::RegisterWidgets(UPlaceableItemInventoryWidget* InPlaceActorWidget, UBoxingPatternWidget* InBoxingPatternWidget, UInteractionWidget* InInteractionWidget, UPlayerStatWidget* InPlayerStatWidget, UDialogueWidget* InDialogueWidget)
 {
 	PlaceActorWidget = InPlaceActorWidget;
 	BoxingPatternWidget = InBoxingPatternWidget;
 	InteractionWidget = InInteractionWidget;
 	PlayerStatWidget = InPlayerStatWidget;
+	DialogueWidget = InDialogueWidget;
 }

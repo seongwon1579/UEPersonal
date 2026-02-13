@@ -14,7 +14,7 @@
 UENUM()
 enum class EIdlePhase : uint8
 {
-	Start, Loop, End,
+	None, Start, Loop, End,
 };
 
 UCLASS()
@@ -50,14 +50,21 @@ public:
 	UAnimSequence* CurrentEndAnim;
 	
 	UPROPERTY(BlueprintReadOnly)
-	EIdlePhase CurrentIdlePhase;
+	EIdlePhase CurrentIdlePhase = EIdlePhase::End;
+	
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsTest2;
 	
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsIdleVariation = false;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Idle Settings")
+	
 	TArray<FIdleAnimData> IdleAnimData;
 	
 	void SetupIdleParams(float InIdleBaseDuration, bool bInIsReady);
+	void StartDialogue();
+	void EndDialogue();
 
 protected:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
@@ -69,6 +76,7 @@ private:
 	void UpdateIdleVariation(float DeltaSeconds);
 	
 	bool bIsAnimDataReady = false;
+	bool bIsDialogue = false;
 	float IdleSetTimer = 0.f;
 	int32 CurrentIndex = 0;
 	float IdleBaseDuration = 0.f;
