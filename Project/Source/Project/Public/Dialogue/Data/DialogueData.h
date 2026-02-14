@@ -12,7 +12,6 @@ enum class EDialogueReaction : uint8
 	End,
 };
 
-
 USTRUCT(BlueprintType)
 struct FDialogueOption
 {
@@ -57,24 +56,27 @@ USTRUCT(BlueprintType)
 struct FDialogueResult
 {
 	GENERATED_BODY()
-	
+
 	UPROPERTY(BlueprintReadOnly)
-	FText ResponseText;
-	
-	UPROPERTY(BlueprintReadOnly)
-	EDialogueReaction Reaction = EDialogueReaction::None;
-	
-	UPROPERTY(BlueprintReadOnly)
-	int32 AffinityChange;
-	
-	UPROPERTY(BlueprintReadOnly)
-	int32 NewAffinity;
-	
-	UPROPERTY(BlueprintReadOnly)
-	int32 NextNodeID = -1;
+	FText NPCResponse;
 	
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsEnd;
 };
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnNPCResponded, const FDialogueResult&);
+USTRUCT(BlueprintType)
+struct FNextNodeData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(BlueprintReadOnly)
+	FText NPCName;
+	
+	UPROPERTY(BlueprintReadOnly)
+	FText NPCText;
+	
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FText> OptionsTexts;
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnDialogueResponded, const FDialogueResult&);

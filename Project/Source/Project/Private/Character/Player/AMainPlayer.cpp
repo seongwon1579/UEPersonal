@@ -21,16 +21,11 @@ void AMainPlayer::StartBoxing()
 	BoxingComp->StartBoxing();
 }
 
-bool AMainPlayer::CanDialogue()
-{
-	if (!DialogueComp) return false;
-	return !DialogueComp->IsInDialogue();
-}
-
-void AMainPlayer::StartDialogue(AActor* OtherActor)
+void AMainPlayer::StartDialogueWith(AActor* OtherActor)
 {
 	if (!DialogueComp || !OtherActor) return;
-	DialogueComp->StartDialogue(OtherActor);
+	
+	DialogueComp->StartDialogueWith(OtherActor);
 }
 
 void AMainPlayer::BeginPlay()

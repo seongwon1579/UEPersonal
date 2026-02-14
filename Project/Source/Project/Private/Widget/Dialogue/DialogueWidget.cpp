@@ -9,39 +9,27 @@
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 
-void UDialogueWidget::InitWidget(UDialogueComponent* InDialogueComponent)
+void UDialogueWidget::UpdateDialogueDisplay(const FNextNodeData& Data)
 {
-	DialogueComponent = InDialogueComponent;
-	
-	if (!DialogueComponent) return;
-	
-	NPCName_TextBlock->SetText(FText::FromString(DialogueComponent->GetCurrentNPCName()));
-	RefreshDisplay();
+	if (NPCName_TextBlock)
+		NPCName_TextBlock->SetText(Data.NPCName);
+    
+	if (Dialogue_TextBlock)
+		Dialogue_TextBlock->SetText(Data.NPCText);
+    
+	if (Choice_VerticalBox)
+		Choice_VerticalBox->SetVisibility(ESlateVisibility::Visible);
+    
+	UpdateChoiceButtons(Data.OptionsTexts);
 }
 
-void UDialogueWidget::ShowResponse(const FDialogueResult& Result)
+void UDialogueWidget::ShowResponseText(const FText& ResponseText)
 {
 	if (Choice_VerticalBox)
-	{
 		Choice_VerticalBox->SetVisibility(ESlateVisibility::Collapsed);
-	}
-
+    
 	if (Dialogue_TextBlock)
-	{
-		Dialogue_TextBlock->SetText(Result.ResponseText);
-	}
-}
-
-void UDialogueWidget::RefreshDisplay()
-{
-	if (!DialogueComponent) return;
-	
-	// NPC 대사
-	Dialogue_TextBlock->SetText(DialogueComponent->GetCurrentNPCText());
-	
-	Choice_VerticalBox->SetVisibility(ESlateVisibility::Visible);
-	
-	UpdateChoiceButtons();
+		Dialogue_TextBlock->SetText(ResponseText);
 }
 
 void UDialogueWidget::NativeConstruct()
@@ -55,33 +43,37 @@ void UDialogueWidget::NativeConstruct()
 
 void UDialogueWidget::OnChoice1Clicked()
 {
-	if (DialogueComponent) DialogueComponent->OnChoiceInput(0);
+	OnDialogueChoiceSelected.Broadcast(0);
 }
 
 void UDialogueWidget::OnChoice2Clicked()
 {
-	if (DialogueComponent) DialogueComponent->OnChoiceInput(1);
+	OnDialogueChoiceSelected.Broadcast(1);
 }
 
 void UDialogueWidget::OnChoice3Clicked()
 {
-	if (DialogueComponent) DialogueComponent->OnChoiceInput(2);
+	OnDialogueChoiceSelected.Broadcast(2);
 }
 
-void UDialogueWidget::UpdateChoiceButtons()
+void UDialogueWidget::UpdateChoiceButtons(const TArray<FText>& Options)
 {
-	if (!DialogueComponent) return;
-	
-	TArray<FDialogueOption> Options = DialogueComponent->GetCurrentNPCOptions();
-	
-	SetupButton(Choice1_Button, Choice1_TextBlock, Options.IsValidIndex(0), Options.IsValidIndex(0) ? Options[0].OptionText : FText::GetEmpty());
-	SetupButton(Choice2_Button, Choice2_TextBlock, Options.IsValidIndex(1), Options.IsValidIndex(1) ? Options[1].OptionText : FText::GetEmpty());
-	SetupButton(Choice3_Button, Choice3_TextBlock, Options.IsValidIndex(2), Options.IsValidIndex(2) ? Options[2].OptionText : FText::GetEmpty());
+	SetupButton(Choice1_Button, Choice1_TextBlock, Options.IsValidIndex(0), 
+			   Options.IsValidIndex(0) ? Options[0] : FText::GetEmpty());
+    
+	SetupButton(Choice2_Button, Choice2_TextBlock, Options.IsValidIndex(1), 
+				Options.IsValidIndex(1) ? Options[1] : FText::GetEmpty());
+    
+	SetupButton(Choice3_Button, Choice3_TextBlock, Options.IsValidIndex(2), 
+				Options.IsValidIndex(2) ? Options[2] : FText::GetEmpty());
 }
 
 void UDialogueWidget::SetupButton(UButton* Button, UTextBlock* Text, bool bVisible, const FText& OptionText)
 {
+	if (!Button) return;
+    
 	ESlateVisibility Visible = bVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed;
 	Button->SetVisibility(Visible);
+    
 	if (Text && bVisible) Text->SetText(OptionText);
 }

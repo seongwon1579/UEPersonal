@@ -16,15 +16,22 @@ class UTextBlock;
 class UVerticalBox;
 class UButton; 
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnDialogueChoiceSelected, int32)
+
 UCLASS()
 class PROJECT_API UDialogueWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
-	void InitWidget(UDialogueComponent* InDialogueComponent);
-	void ShowResponse(const FDialogueResult& Result);
-	void RefreshDisplay();
+	FOnDialogueChoiceSelected OnDialogueChoiceSelected;
+	
+	// void InitWidget(UDialogueComponent* InDialogueComponent);
+	// void ShowResponse(const FDialogueResult& Result);
+	// void RefreshDisplay();
+	
+	void UpdateDialogueDisplay(const FNextNodeData& Data);
+	void ShowResponseText(const FText& ResponseText);
 
 private:
 	virtual void NativeConstruct() override;
@@ -38,7 +45,7 @@ private:
 	UFUNCTION()
 	void OnChoice3Clicked();
 	
-	void UpdateChoiceButtons();
+	void UpdateChoiceButtons(const TArray<FText>& );
 	
 	void SetupButton(UButton* Button, UTextBlock* Text, bool bVisible, const FText& OptionText);
 	
@@ -68,7 +75,4 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Choice3_TextBlock;
-	
-	UPROPERTY()
-	UDialogueComponent* DialogueComponent;
 };

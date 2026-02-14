@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Interfaces/Activity/BoxingActivityInterface.h"
-#include "Interfaces/Dialogue/IDialogueInstigatorInterface.h"
+#include "Interfaces/Dialogue/IDialogueInstigator.h"
 #include "Project/ProjectCharacter.h"
 
 #include "AMainPlayer.generated.h"
@@ -14,7 +14,7 @@ class UInputAction;
 class UBoxingActivityComponent;
 
 UCLASS()
-class PROJECT_API AMainPlayer : public AProjectCharacter, public IBoxingActivityInterface, public IDialogueInstigatorInterface
+class PROJECT_API AMainPlayer : public AProjectCharacter, public IBoxingActivityInterface, public IDialogueInstigator
 {
 	GENERATED_BODY()
 
@@ -28,8 +28,7 @@ public:
 	virtual bool IsBoxing() const override;
 	virtual void StartBoxing() override;
 
-	virtual bool CanDialogue() override;
-	virtual void StartDialogue(AActor* OtherActor) override;
+	virtual void StartDialogueWith(AActor* OtherActor) override;
 	
 private:
 	virtual void BeginPlay() override;

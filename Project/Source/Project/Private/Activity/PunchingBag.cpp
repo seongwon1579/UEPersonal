@@ -7,12 +7,18 @@
 #include "Character/Player/AMainPlayer.h"
 #include "Character/Player/Component/Activity/BoxingActivityComponent.h"
 #include "Components/BoxComponent.h"
-#include "SubSystem/UISubSystem.h"
+#include "Components/WidgetComponent.h"
 
 APunchingBag::APunchingBag()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
+	
+	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Default"));
+	SetRootComponent(SceneComponent);
+	
+	InteractionWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractionWidget"));
+	InteractionWidgetComp->SetupAttachment(RootComponent);
+	InteractionWidgetComp->SetVisibility(false);
 }
 
 void APunchingBag::BeginPlay()
@@ -52,12 +58,11 @@ void APunchingBag::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
 	// 현재 인터렉션 대상을 플레이어에게 전달
 	Player->SetCurrentInteractable(this);
 	
-	// UI를 담당하는 서스시스템에서 인터렉션 UI를 출력
-	UUISubSystem* UISubSystem = GetGameInstance()->GetSubsystem<UUISubSystem>();
-	if (UISubSystem)
+	if (InteractionWidgetComp)
 	{
-		UISubSystem->ShowInteractionWidget();
+		InteractionWidgetComp->SetVisibility(true);
 	}
+	
 }
 
 void APunchingBag::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -67,11 +72,10 @@ void APunchingBag::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* Oth
 	if (!Player) return;
 
 	Player->SetCurrentInteractable(nullptr);
-
-	UUISubSystem* UISubsystem = GetGameInstance()->GetSubsystem<UUISubSystem>();
-	if (UISubsystem)
+	
+	if (InteractionWidgetComp)
 	{
-		UISubsystem->HideInteractionWidget();
+		InteractionWidgetComp->SetVisibility(false);
 	}
 }
 

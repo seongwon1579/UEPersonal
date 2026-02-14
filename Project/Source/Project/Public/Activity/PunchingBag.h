@@ -9,6 +9,8 @@
 #include "PunchingBag.generated.h"
 
 class UBoxComponent;
+class USceneComponent;
+class UWidgetComponent;
 UCLASS()
 class PROJECT_API APunchingBag : public AActor, public IInteractableInterface
 {
@@ -26,6 +28,12 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boxing")
 	UStaticMeshComponent* PunchingBagMesh;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USceneComponent* SceneComponent = nullptr;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UWidgetComponent* InteractionWidgetComp;
 
 protected:
 	UFUNCTION()

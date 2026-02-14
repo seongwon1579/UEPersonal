@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Interfaces/Dialogue/DialogueableInterface.h"
+#include "Interfaces/Dialogue/DialogueResponder.h"
 #include "Dialogue/Data/DialogueData.h"
 #include "Interfaces/Interaction/InteractableInterface.h"
 
@@ -17,29 +17,24 @@ class UStationaryNPCAnimInstance;
 class UWidgetComponent;
 
 UCLASS()
-class PROJECT_API AStationaryNPC : public AActor , public IInteractableInterface, public IDialogueableInterface
+class PROJECT_API AStationaryNPC : public AActor , public IInteractableInterface, public IDialogueResponder
 {
 	GENERATED_BODY()
 
 public:
 	AStationaryNPC();
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UWidgetComponent* InteractionWidgetComp;
-	
+	// IInteractableInterface
 	virtual void Interact(AActor* OtherActor) override;
 	virtual bool CanInteract() const override;
 	
-	virtual void StartConversation() override;
-	virtual void EndConversation() override;
+	// IDialogueResponder
+	virtual void InitDialogue() override;
+	virtual void EndDialogue() override;
 	virtual void ReceiveDialogueChoice(int32 OptionIndex) override;
-	virtual FString GetNPCName() const override { return NPCName; }
 	virtual bool HasDialogue() const override { return DialogueNodes.Num() > 0; }
-	virtual FText GetCurrentNPCText() const override;
-	virtual TArray<FDialogueOption> GetCurrentOptions() const override;
-	virtual FOnNPCResponded& GetOnNPCResponded() override { return OnNPCResponded; }
-	
-	int32 GetAffinity() const {return Affinity;}
+	virtual const FNextNodeData GetNextNodeData() override;
+	virtual FOnDialogueResponded& OnDialogueResponded() override { return OnNPCResponded; }
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USceneComponent* SceneComponent = nullptr;
@@ -50,44 +45,33 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USphereComponent* InteractionZone = nullptr;
 	
-	FString NPCName = TEXT("NPC");
-	int32 Affinity = 50;
+	UPROPERTY(EditAnywhere, meta = (TitleProperty = "NPCText"))
+	FText NPCName = FText::FromString(TEXT("NPC"));
 	
 	UPROPERTY(EditAnywhere, meta = (TitleProperty = "NPCText"))
 	TArray<FDialogueNode> DialogueNodes;
 	
-	int32 DefaultStartNodeID = 0;
-	int32 HighAffinityStartNodeID = -1;
-	int32 LowAffinityStartNodeID = -1;
-	
-	UPROPERTY(EditAnywhere, Category = "NPC|Animation")
-	TMap<EDialogueReaction, UAnimMontage*> ReactionMontages;
-	
 	UPROPERTY()
 	UStationaryNPCAnimInstance* StationaryNPCAnimInstance;
 	
-	FOnNPCResponded OnNPCResponded;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UWidgetComponent* InteractionWidgetComp;
 	
+	FOnDialogueResponded OnNPCResponded;
+
 private:
-	virtual void BeginPlay() override;
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
 	UFUNCTION()
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex);
 	
-	EDialogueReaction DetermineReaction(const FDialogueOption& Option);
-	FText DetermineResponse(const FDialogueOption& Option);
+	virtual void BeginPlay() override;
 	
-	int32 GetStartNodeID();
-	FDialogueNode GetNode(int32 NodeID) const;
 	FDialogueNode GetCurrentNode() const;
-	
-	void ChangeAffinity(int32 Amount);
 	void PlayReaction(EDialogueReaction Reaction);
 	
 	int32 CurrentNodeID = 0;
-	TMap<int32, TArray<int32>> UsedOptions;
-	
 };

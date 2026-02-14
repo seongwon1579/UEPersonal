@@ -7,27 +7,25 @@
 #include "Character/Player/AMainPlayer.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
-#include "SubSystem/UISubSystem.h"
-
 
 AStationaryNPC::AStationaryNPC()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	
-
-
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Default"));
 	SetRootComponent(SceneComponent);
 
 	MeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	MeshComponent->SetupAttachment(RootComponent);
 
-	InteractionZone = CreateDefaultSubobject<USphereComponent>(TEXT("Interactor"));
+	InteractionZone = CreateDefaultSubobject<USphereComponent>(TEXT("Interactable"));
 	InteractionZone->SetupAttachment(RootComponent);
+	
 	InteractionWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractionWidget"));
 	InteractionWidgetComp->SetupAttachment(RootComponent);
 	InteractionWidgetComp->SetVisibility(false);
 
+	// 인터렉션존 overlap 이벤트 등록
 	if (InteractionZone)
 	{
 		InteractionZone->OnComponentBeginOverlap.AddDynamic(this, &AStationaryNPC::OnOverlapBegin);
@@ -37,12 +35,9 @@ AStationaryNPC::AStationaryNPC()
 
 void AStationaryNPC::Interact(AActor* OtherActor)
 {
-	if (IDialogueInstigatorInterface* DialogueInstigator = Cast<IDialogueInstigatorInterface>(OtherActor))
+	if (IDialogueInstigator* DialogueInstigator = Cast<IDialogueInstigator>(OtherActor))
 	{
-		if (DialogueInstigator->CanDialogue())
-		{
-			DialogueInstigator->StartDialogue(this);
-		}
+		DialogueInstigator->StartDialogueWith(this);
 	}
 }
 
@@ -51,20 +46,17 @@ bool AStationaryNPC::CanInteract() const
 	return HasDialogue();
 }
 
-void AStationaryNPC::StartConversation()
+void AStationaryNPC::InitDialogue()
 {
 	// 대화가 시작되면 현재 노드(0)를 할당
-	CurrentNodeID = GetStartNodeID();
-	UsedOptions.Empty();
+	CurrentNodeID = 0;
 	
 	if (StationaryNPCAnimInstance)
 		StationaryNPCAnimInstance->StartDialogue();
 }
 
-void AStationaryNPC::EndConversation()
+void AStationaryNPC::EndDialogue()
 {
-	UsedOptions.Empty();
-	
 	if (StationaryNPCAnimInstance)
 		StationaryNPCAnimInstance->EndDialogue();
 }
@@ -72,93 +64,70 @@ void AStationaryNPC::EndConversation()
 // 선택지 버튼이 클릭시 호출됨
 void AStationaryNPC::ReceiveDialogueChoice(int32 OptionIndex)
 {
+	// 현재 노드의 선택지 찾기
+	FDialogueNode CurrentNode = GetCurrentNode();
+	FDialogueOption CurrentOption = CurrentNode.Options[OptionIndex];
 	
+	// 리액션 애니메이션 재생
+	PlayReaction(CurrentOption.Reaction);
 	
-	TArray<FDialogueOption> Options = GetCurrentOptions();
-
-	if (!Options.IsValidIndex(OptionIndex)) return;
-
-	const FDialogueOption& SelectedOption = Options[OptionIndex];
-
+	// 버튼 클릭에 대한 정보 
 	FDialogueResult Result;
-
-	// 호감도 변경
-	ChangeAffinity(SelectedOption.AffinityChanged);
-	Result.AffinityChange = SelectedOption.AffinityChanged;
-	Result.NewAffinity = Affinity;
-
-	// 반응 결정(애니메이션)
-	Result.Reaction = DetermineReaction(SelectedOption);
-
-	// 반응 결정 (Text)
-	Result.ResponseText = DetermineResponse(SelectedOption);
-
-	// 다음 노드
-	Result.NextNodeID = SelectedOption.NextNodeID;
-	Result.bIsEnd = (SelectedOption.NextNodeID < 0);
-
-	// 사용한 선택지 기록
-	if (SelectedOption.bOneTimeOnly)
-	{
-		if (!UsedOptions.Contains(CurrentNodeID))
-		{
-			UsedOptions.Add(CurrentNodeID, TArray<int32>());
-		}
-
-		// 선택한 선택지 캐싱
-		FDialogueNode CurrentNode = GetCurrentNode();
-		for (int32 i = 0; i < CurrentNode.Options.Num(); i++)
-		{
-			if (CurrentNode.Options[i].OptionText.EqualTo(SelectedOption.OptionText))
-			{
-				UsedOptions[CurrentNodeID].AddUnique(i);
-				break;
-			}
-		}
-	}
-
-	// 애니메이션 재생
-	PlayReaction(Result.Reaction);
-
-	// 다음 노드로 변경
-	if (!Result.bIsEnd)
-	{
-		CurrentNodeID = Result.NextNodeID;
-	}
-
-	// 결과 전달
+	Result.bIsEnd = CurrentOption.NextNodeID < 0;
+	Result.NPCResponse = CurrentOption.NPCResponse;
+	
+	// 다음노드로 변경
+	CurrentNodeID = CurrentOption.NextNodeID;
+	
+	// 정보 전달
 	OnNPCResponded.Broadcast(Result);
 }
 
-FText AStationaryNPC::GetCurrentNPCText() const
+const FNextNodeData AStationaryNPC::GetNextNodeData()
 {
-	return GetCurrentNode().NPCText;
-}
-
-TArray<FDialogueOption> AStationaryNPC::GetCurrentOptions() const
-{
+	FNextNodeData Data;
+	
+	// 현재 노드가 있는지 확인
+	if (CurrentNodeID < 0) return Data;
+	
+	// 현재 노드의 정보 
 	FDialogueNode CurrentNode = GetCurrentNode();
-	TArray<FDialogueOption> AvailableOptions;
-
-	const TArray<int32>* UsedIndices = UsedOptions.Find(CurrentNodeID);
-
-	for (int32 i = 0; i < CurrentNode.Options.Num(); i++)
+	Data.NPCName = NPCName;
+	Data.NPCText = CurrentNode.NPCText;
+	
+	for (auto Option : CurrentNode.Options)
 	{
-		// 조건: bOneTimeOnly가 true이고 + 이미 사용한 선택지면
-		if (CurrentNode.Options[i].bOneTimeOnly && UsedIndices && UsedIndices->Contains(i))
-		{
-			continue;
-		}
-		AvailableOptions.Add(CurrentNode.Options[i]);
+		Data.OptionsTexts.Add(Option.OptionText);
 	}
-
-	return AvailableOptions;
+	return Data;
 }
+
+
+// TArray<FDialogueOption> AStationaryNPC::GetCurrentOptions() const
+// {
+// 	FDialogueNode CurrentNode = GetCurrentNode();
+// 	TArray<FDialogueOption> AvailableOptions;
+//
+// 	const TArray<int32>* UsedIndices = UsedOptions.Find(CurrentNodeID);
+//
+// 	for (int32 i = 0; i < CurrentNode.Options.Num(); i++)
+// 	{
+// 		// 조건: bOneTimeOnly가 true이고 + 이미 사용한 선택지면
+// 		if (CurrentNode.Options[i].bOneTimeOnly && UsedIndices && UsedIndices->Contains(i))
+// 		{
+// 			continue;
+// 		}
+// 		AvailableOptions.Add(CurrentNode.Options[i]);
+// 	}
+//
+// 	return AvailableOptions;
+// }
 
 
 void AStationaryNPC::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	UAnimInstance* AnimInstance = MeshComponent->GetAnimInstance();
 	StationaryNPCAnimInstance = Cast<UStationaryNPCAnimInstance>(AnimInstance);
 }
@@ -170,37 +139,14 @@ void AStationaryNPC::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 	AMainPlayer* Player = Cast<AMainPlayer>(OtherActor);
 	if (!Player) return;
 
-	// 현재 인터렉션 대상을 플레이어에게 전달
 	Player->SetCurrentInteractable(this);
 	
 	if (InteractionWidgetComp)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("=== Widget Debug ==="));
-		UE_LOG(LogTemp, Warning, TEXT("Widget Class: %s"), 
-			InteractionWidgetComp->GetWidgetClass() ? TEXT("SET") : TEXT("NULL"));
-		UE_LOG(LogTemp, Warning, TEXT("Widget Instance: %s"), 
-			InteractionWidgetComp->GetWidget() ? TEXT("EXISTS") : TEXT("NULL"));
-		UE_LOG(LogTemp, Warning, TEXT("Draw Size: %s"), 
-			*InteractionWidgetComp->GetDrawSize().ToString());
-		UE_LOG(LogTemp, Warning, TEXT("Is Visible: %s"), 
-			InteractionWidgetComp->IsVisible() ? TEXT("TRUE") : TEXT("FALSE"));
-		UE_LOG(LogTemp, Warning, TEXT("Widget Space: %d"), 
-			(int32)InteractionWidgetComp->GetWidgetSpace());
-        
-		// 강제로 설정
 		InteractionWidgetComp->SetVisibility(true);
 		InteractionWidgetComp->SetHiddenInGame(false);
-        
-		UE_LOG(LogTemp, Warning, TEXT("After SetVisibility: %s"), 
-			InteractionWidgetComp->IsVisible() ? TEXT("TRUE") : TEXT("FALSE"));
 	}
-
-	// // UI를 담당하는 서스시스템에서 인터렉션 UI를 출력
-	// UUISubSystem* UISubSystem = GetGameInstance()->GetSubsystem<UUISubSystem>();
-	// if (UISubSystem)
-	// {
-	// 	UISubSystem->ShowInteractionWidget();
-	// }
+	
 }
 
 void AStationaryNPC::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -216,69 +162,21 @@ void AStationaryNPC::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* O
 	{
 		InteractionWidgetComp->SetVisibility(false);
 	}
-
-	// UUISubSystem* UISubsystem = GetGameInstance()->GetSubsystem<UUISubSystem>();
-	// if (UISubsystem)
-	// {
-	// 	UISubsystem->HideInteractionWidget();
-	// }
 }
 
-EDialogueReaction AStationaryNPC::DetermineReaction(const FDialogueOption& Option)
-{
-	return Option.Reaction;
-}
 
-FText AStationaryNPC::DetermineResponse(const FDialogueOption& Option)
+FDialogueNode AStationaryNPC::GetCurrentNode() const
 {
-	return Option.NPCResponse;
-}
-
-int32 AStationaryNPC::GetStartNodeID()
-{
-	if (Affinity >= 70 && HighAffinityStartNodeID >= 0 && DialogueNodes.IsValidIndex(HighAffinityStartNodeID))
+	if (DialogueNodes.IsValidIndex(CurrentNodeID))
 	{
-		return HighAffinityStartNodeID;
-	}
-
-	if (Affinity <= 30 && LowAffinityStartNodeID >= 0 && DialogueNodes.IsValidIndex(LowAffinityStartNodeID))
-	{
-		return LowAffinityStartNodeID;
-	}
-
-	return DefaultStartNodeID;
-}
-
-FDialogueNode AStationaryNPC::GetNode(int32 NodeID) const
-{
-	if (DialogueNodes.IsValidIndex(NodeID))
-	{
-		return DialogueNodes[NodeID];
+		return DialogueNodes[CurrentNodeID];
 	}
 	return FDialogueNode();
 }
 
-FDialogueNode AStationaryNPC::GetCurrentNode() const
-{
-	return GetNode(CurrentNodeID);
-}
-
-void AStationaryNPC::ChangeAffinity(int32 Amount)
-{
-	Affinity = FMath::Clamp(Affinity + Amount, 0, 100);
-}
-
 void AStationaryNPC::PlayReaction(EDialogueReaction Reaction)
 {
-	// if (Reaction == EDialogueReaction::None) return;
-	//
-	// UAnimMontage** FoundMontage = ReactionMontages.Find(Reaction);
-	// if (!FoundMontage || !*FoundMontage) return;
-	//
-	// UAnimInstance* Anim = MeshComponent->GetAnimInstance();
-	// if (!Anim) return;
-	//
-	// Anim->Montage_Play(*FoundMontage);
+	if (Reaction == EDialogueReaction::None) return;
 	
 	StationaryNPCAnimInstance->PlayReaction(Reaction);
 }

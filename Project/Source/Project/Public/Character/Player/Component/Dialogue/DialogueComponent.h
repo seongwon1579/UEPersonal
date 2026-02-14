@@ -10,7 +10,9 @@
 
 struct FDialogueResult;
 class UUISubSystem;
-class IDialogueableInterface;
+class IDialogueResponder;
+class APlayerController;
+class UDialogueWidget;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_API UDialogueComponent : public UActorComponent
@@ -18,33 +20,33 @@ class PROJECT_API UDialogueComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UDialogueComponent();
 	
-	void StartDialogue(AActor* NPCActor);
+	void StartDialogueWith(AActor* NPCActor);
 	void EndDialogue();
 	
 	void OnChoiceInput(int32 OptionIndex);
-	bool IsInDialogue() const {return bIsInDialogue;}
-	
-	FString GetCurrentNPCName() const;
-	FText GetCurrentNPCText() const;
-	TArray<FDialogueOption> GetCurrentNPCOptions() const;
+	bool IsInDialogue() const {return bOnDialogue;}
 
 private:
-	// Called when the game starts
 	virtual void BeginPlay() override;
-	void HandleNPCResponse(const FDialogueResult& Result);
+	
+	void HandleDialogueResponse(const FDialogueResult& Result);
 	void ShowNextNode();
-
-	UPROPERTY()
-	AActor* CurrentNPCActor;
+	
+	void ConfigureInputMode(bool IsUIMode);
+	void ConfigureDialogue(IDialogueResponder* Target, bool bInOnDialogue);
 	
 	UPROPERTY()
 	UUISubSystem* UISubSystem;
 	
-	IDialogueableInterface* CurrentNPC;
-	bool bIsInDialogue = false;
+	UPROPERTY()
+	APlayerController* PlayerController;
+	
+	UPROPERTY()
+	UDialogueWidget* DialogueWidget;
+	
+	IDialogueResponder* DialogueResponder;
+	bool bOnDialogue = false;
 	FTimerHandle ResponseTimerHandle;
-
 };

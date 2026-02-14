@@ -77,7 +77,6 @@ void UUISubSystem::ShowDialogueWidget(UDialogueComponent* InDialogueComponent)
 {
 	if (!DialogueWidget || !InDialogueComponent) return;
 	
-	DialogueWidget->InitWidget(InDialogueComponent);
 	DialogueWidget->SetVisibility(ESlateVisibility::Visible);
 }
 

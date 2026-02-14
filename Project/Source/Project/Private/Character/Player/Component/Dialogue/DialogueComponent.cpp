@@ -3,7 +3,7 @@
 
 #include "Character/Player/Component/Dialogue/DialogueComponent.h"
 #include "SubSystem/UISubSystem.h"
-#include "Interfaces/Dialogue/DialogueableInterface.h"
+#include "Interfaces/Dialogue/DialogueResponder.h"
 #include "Widget/Dialogue/DialogueWidget.h"
 
 UDialogueComponent::UDialogueComponent()
@@ -11,95 +11,77 @@ UDialogueComponent::UDialogueComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UDialogueComponent::StartDialogue(AActor* NPCActor)
+void UDialogueComponent::StartDialogueWith(AActor* NPCActor)
 {
-	if (!NPCActor || bIsInDialogue) return;
+	if (!NPCActor || bOnDialogue) return;
 
-	IDialogueableInterface* DialogueNPC = Cast<IDialogueableInterface>(NPCActor);
-	if (!DialogueNPC || !DialogueNPC->HasDialogue()) return;
+	IDialogueResponder* Responder = Cast<IDialogueResponder>(NPCActor);
+	if (!Responder || !Responder->HasDialogue()) return;
 
-	APlayerController* PC = GetWorld()->GetFirstPlayerController();
-	if (!PC) return;
+	ConfigureInputMode(true);
+	ConfigureDialogue(Responder, true);
 	
-	PC->bShowMouseCursor = true;
-	PC->SetInputMode(FInputModeGameAndUI());
-
-	CurrentNPCActor = NPCActor;
-	CurrentNPC = DialogueNPC;
-	bIsInDialogue = true;
-
-	CurrentNPC->StartConversation();
-	CurrentNPC->GetOnNPCResponded().AddUObject(this, &UDialogueComponent::HandleNPCResponse);
-
-	// if (UISubSystem)
-	// {
-	// 	UISubSystem->ShowDialogueWidget(this);
-	// }
-
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(
-		TimerHandle,
-		[this]()
+	if (DialogueResponder)
+	{
+		DialogueResponder->OnDialogueResponded().AddUObject(this, &UDialogueComponent::HandleDialogueResponse);
+		DialogueResponder->InitDialogue();
+	}
+	
+	// UI 시작
+	if (UISubSystem)
+	{
+		UISubSystem->ShowDialogueWidget(this);
+		
+		if (DialogueWidget)
 		{
-			if (UISubSystem && bIsInDialogue)
-			{
-				UISubSystem->ShowDialogueWidget(this);
-			}
-		},
-		1.5f,
-		false
-	);
+			DialogueWidget->OnDialogueChoiceSelected.AddUObject(this, &UDialogueComponent::OnChoiceInput);
+			ShowNextNode();
+		}
+	}
 }
 
 void UDialogueComponent::EndDialogue()
 {
-	if (!bIsInDialogue) return;
+	if (!bOnDialogue) return;
 
-	APlayerController* PC = GetWorld()->GetFirstPlayerController();
-	if (!PC) return;
-	
-	PC->bShowMouseCursor = false;
-	PC->SetInputMode(FInputModeGameOnly());
-	
 	GetWorld()->GetTimerManager().ClearTimer(ResponseTimerHandle);
-
-	if (CurrentNPC)
+	
+	if (DialogueWidget)
 	{
-		CurrentNPC->GetOnNPCResponded().RemoveAll(this);
-		CurrentNPC->EndConversation();
+		DialogueWidget->OnDialogueChoiceSelected.RemoveAll(this);
+	}
+	
+	if (DialogueResponder)
+	{
+		DialogueResponder->OnDialogueResponded().RemoveAll(this);
+		DialogueResponder->EndDialogue();
 	}
 
 	if (UISubSystem)
 	{
 		UISubSystem->HideDialogueWidget();
 	}
-
-	CurrentNPCActor = nullptr;
-	CurrentNPC = nullptr;
-	bIsInDialogue = false;
+	
+	ConfigureInputMode(false);
+	ConfigureDialogue(nullptr, false);
 }
 
-// 선택지 입력
+// 옵션 선택
 void UDialogueComponent::OnChoiceInput(int32 OptionIndex)
 {
-	if (!CurrentNPC || !bIsInDialogue) return;
-
-	TArray<FDialogueOption> Options = CurrentNPC->GetCurrentOptions();
-
-	if (!Options.IsValidIndex(OptionIndex)) return;
-
+	if (!bOnDialogue || !DialogueResponder) return;
+	
 	// NPC의 현재 답변을 보냄
-	CurrentNPC->ReceiveDialogueChoice(OptionIndex);
+	DialogueResponder->ReceiveDialogueChoice(OptionIndex);
 }
 
-void UDialogueComponent::HandleNPCResponse(const FDialogueResult& Result)
+void UDialogueComponent::HandleDialogueResponse(const FDialogueResult& Result)
 {
-	if (UISubSystem)
+	if (DialogueWidget)
 	{
-		UDialogueWidget* Widget = UISubSystem->GetDialogueWidget();
-		if (!Widget) return;
-		Widget->ShowResponse(Result);
+		DialogueWidget->ShowResponseText(Result.NPCResponse);
 	}
+	
 	if (Result.bIsEnd)
 	{
 		GetWorld()->GetTimerManager().SetTimer(ResponseTimerHandle, this, &UDialogueComponent::EndDialogue, 1.f, false);
@@ -113,37 +95,47 @@ void UDialogueComponent::HandleNPCResponse(const FDialogueResult& Result)
 
 void UDialogueComponent::ShowNextNode()
 {
-	if (!bIsInDialogue) return;
+	if (!DialogueWidget || !bOnDialogue) return;
+	
+	DialogueWidget->UpdateDialogueDisplay(DialogueResponder->GetNextNodeData());
+}
 
-	if (UISubSystem)
+void UDialogueComponent::ConfigureInputMode(bool IsUIMode)
+{
+	if (!PlayerController) return;
+
+	PlayerController->bShowMouseCursor = IsUIMode;
+
+	if (IsUIMode)
 	{
-		UDialogueWidget* Widget = UISubSystem->GetDialogueWidget();
-		if (!Widget) return;
-		Widget->RefreshDisplay();
+		PlayerController->SetInputMode(FInputModeGameAndUI());
+	}
+	else
+	{
+		PlayerController->SetInputMode(FInputModeGameOnly());
 	}
 }
 
-FString UDialogueComponent::GetCurrentNPCName() const
+void UDialogueComponent::ConfigureDialogue(IDialogueResponder* Target, bool bInOnDialogue)
 {
-	if (!CurrentNPC) return FString();
-	return CurrentNPC->GetNPCName();
+	bOnDialogue = bInOnDialogue;
+	DialogueResponder = Target;
 }
 
-FText UDialogueComponent::GetCurrentNPCText() const
-{
-	if (!CurrentNPC) return FText::GetEmpty();
-	return CurrentNPC->GetCurrentNPCText();
-}
-
-TArray<FDialogueOption> UDialogueComponent::GetCurrentNPCOptions() const
-{
-	if (!CurrentNPC) return TArray<FDialogueOption>();
-	return CurrentNPC->GetCurrentOptions();
-}
 
 void UDialogueComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	UISubSystem = GetWorld()->GetGameInstance()->GetSubsystem<UUISubSystem>();
+
+	if (UISubSystem)
+	{
+		DialogueWidget = UISubSystem->GetDialogueWidget();
+	}
+	
+	APawn* Pawn = Cast<APawn>(GetOwner());
+	if (!Pawn) return;
+	
+	PlayerController = Cast<APlayerController>(Pawn->GetController());
 }

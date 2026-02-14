@@ -6,11 +6,11 @@
 #include "UObject/Interface.h"
 #include "Dialogue/Data/DialogueData.h"
 
-#include "DialogueableInterface.generated.h"
+#include "DialogueResponder.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class UDialogueableInterface : public UInterface
+class UDialogueResponder : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -18,19 +18,16 @@ class UDialogueableInterface : public UInterface
 /**
  * 
  */
-class PROJECT_API IDialogueableInterface
+class PROJECT_API IDialogueResponder
 {
 	GENERATED_BODY()
 
 public:
-	virtual void StartConversation() = 0;
-	virtual void EndConversation() = 0;
+	virtual void InitDialogue() = 0;
+	virtual void EndDialogue() = 0;
 	virtual void ReceiveDialogueChoice(int32 OptionIndex) = 0;
-	
-	virtual FString GetNPCName() const = 0;
 	virtual bool HasDialogue() const = 0;
-	virtual FText GetCurrentNPCText() const = 0;
-	virtual TArray<FDialogueOption> GetCurrentOptions() const = 0;
+	virtual const FNextNodeData GetNextNodeData() = 0;
 
-	virtual FOnNPCResponded& GetOnNPCResponded() = 0;
+	virtual FOnDialogueResponded& OnDialogueResponded() = 0;
 };
