@@ -45,33 +45,37 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USphereComponent* InteractionZone = nullptr;
 	
-	UPROPERTY(EditAnywhere, meta = (TitleProperty = "NPCText"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UWidgetComponent* InteractionWidgetComp;
+	
+	UPROPERTY(EditAnywhere, meta = (TitleProperty = "Dialogue"))
+	bool bCanDialogue = false;
+	
+	UPROPERTY(EditAnywhere, meta = (TitleProperty = "Dialogue"))
 	FText NPCName = FText::FromString(TEXT("NPC"));
 	
-	UPROPERTY(EditAnywhere, meta = (TitleProperty = "NPCText"))
+	UPROPERTY(EditAnywhere, meta = (TitleProperty = "Dialogue"))
 	TArray<FDialogueNode> DialogueNodes;
 	
 	UPROPERTY()
 	UStationaryNPCAnimInstance* StationaryNPCAnimInstance;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UWidgetComponent* InteractionWidgetComp;
-	
 	FOnDialogueResponded OnNPCResponded;
 
 private:
 	UFUNCTION()
-	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	void OnDialogueOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 	UFUNCTION()
-	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	void OnDialogueOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex);
 	
 	virtual void BeginPlay() override;
 	
 	FDialogueNode GetCurrentNode() const;
 	void PlayReaction(EDialogueReaction Reaction);
+	void SetWidgetVisibility(bool bVisible);
 	
 	int32 CurrentNodeID = 0;
 };

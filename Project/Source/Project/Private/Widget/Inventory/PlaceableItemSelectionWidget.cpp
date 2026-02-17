@@ -4,8 +4,9 @@
 #include "Widget/Inventory/PlaceableItemSelectionWidget.h"
 #include "Components/UniformGridPanel.h"
 #include "Components/UniformGridSlot.h"
-#include "CommonButtonBase.h"
+#include "Components/Button.h"
 #include "DebugHelper.h"
+#include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
 
 #include "Widget/Inventory/PlaceableItemSlotWidget.h"
@@ -19,35 +20,36 @@ void UPlaceableItemSelectionWidget::NativeConstruct()
 	GridPanels.Add(EPlaceableItemType::Interior, Interior_GridPanel);
 	GridPanels.Add(EPlaceableItemType::Exterior, Exterior_GridPanel);
 
-	Building_Button->OnClicked().AddLambda([this]()
-	{
-		Switcher->SetActiveWidgetIndex(0);
-	});
+	Building_Button->OnClicked.AddDynamic(this, &UPlaceableItemSelectionWidget::OnBuildingClicked);
+	Interior_Button->OnClicked.AddDynamic(this, &UPlaceableItemSelectionWidget::OnInteriorClicked);
+	Exterior_Button->OnClicked.AddDynamic(this, &UPlaceableItemSelectionWidget::OnExteriorClicked);
 	
-	Interior_Button->OnClicked().AddLambda([this]()
-	{
-		Switcher->SetActiveWidgetIndex(1);
-	});
+}
 
-	Exterior_Button->OnClicked().AddLambda([this]()
-	{
-		Switcher->SetActiveWidgetIndex(2);
-	});
+void UPlaceableItemSelectionWidget::OnBuildingClicked()
+{
+	Switcher->SetActiveWidgetIndex(0);
+}
+
+void UPlaceableItemSelectionWidget::OnInteriorClicked()
+{
+	Switcher->SetActiveWidgetIndex(1);
+}
+
+void UPlaceableItemSelectionWidget::OnExteriorClicked()
+{
+	Switcher->SetActiveWidgetIndex(2);
 }
 
 void UPlaceableItemSelectionWidget::PopulateGrid(EPlaceableItemType ItemType ,const TArray<FPlaceableItemData*>& DataArray)
 {
 	UUniformGridPanel* GridPanel = GridPanels.FindRef(ItemType);
-	
-	
+    
 	if (!GridPanel || !PlaceableItemSlot)
 		return;
-	
-	
+    
 	GridPanel->ClearChildren();
-	GridPanel->SetMinDesiredSlotWidth(160.f);
-	GridPanel->SetMinDesiredSlotHeight(160.f);
-	GridPanel->SetSlotPadding(FMargin(30.f));
+	GridPanel->SetSlotPadding(FMargin(15.f));
 
 	int32 Columns = 2;
 
@@ -60,12 +62,15 @@ void UPlaceableItemSelectionWidget::PopulateGrid(EPlaceableItemType ItemType ,co
 			int32 Col = i % Columns;
 
 			UUniformGridSlot* GridSlot = GridPanel->AddChildToUniformGrid(NewWidget, Row, Col);
-			// GridSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Center);
-			// GridSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
-			GridSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
-			GridSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
+			GridSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Left);
+			GridSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Top);
 
 			NewWidget->SetupSlot(DataArray[i]);
 		}
 	}
+}
+
+void UPlaceableItemSelectionWidget::RefreshAvailableItems(int32 Value)
+{
+	Strength_Value_TextBlock->SetText(FText::AsNumber(Value));
 }

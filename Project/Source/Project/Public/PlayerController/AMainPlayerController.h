@@ -30,11 +30,11 @@ class PROJECT_API AAMainPlayerController : public APlayerController
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UBoxingPatternWidget> BoxingPatternWidgetClass;
 	
-	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<UInteractionWidget> InteractionWidgetClass;
+	// UPROPERTY(EditAnywhere, Category = "UI")
+	// TSubclassOf<UInteractionWidget> InteractionWidgetClass;
 	
-	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<UPlayerStatWidget> PlayerStatWidgetClass;
+	// UPROPERTY(EditAnywhere, Category = "UI")
+	// TSubclassOf<UPlayerStatWidget> PlayerStatWidgetClass;
 	
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UDialogueWidget> DialogueWidgetClass;	
@@ -45,8 +45,8 @@ class PROJECT_API AAMainPlayerController : public APlayerController
 	UPROPERTY()
 	UBoxingPatternWidget* BoxingPatternWidget;
 	
-	UPROPERTY()
-	UInteractionWidget* InteractionWidget;
+	// UPROPERTY()
+	// UInteractionWidget* InteractionWidget;
 
 	UPROPERTY()
 	UUISubSystem* UISubSystem;

@@ -2,84 +2,60 @@
 
 
 #include "Widget/Activity/BoxingPatternWidget.h"
-
-#include "Character/Player/Component/Activity/BoxingActivityComponent.h"
+#include "Character/Player/Component/Activity/Data/BoxingData.h"
 #include "Components/Image.h"
-#include "Components/TextBlock.h"
 
-void UBoxingPatternWidget::InitWidget(UBoxingActivityComponent* InComponent)
+void UBoxingPatternWidget::BindToPatternDelegate(FOnShowPattern& InDelegate)
 {
-	BoxingActivityComponent = InComponent;
+	UnbindToPatternDelegate();
 
-	if (!BoxingActivityComponent) return;
-	// 델리게이트 구독
-	BoxingActivityComponent->OnShowPattern.AddUObject(this, &UBoxingPatternWidget::HandleShowPattern);
+	BoundDelegate = &InDelegate;
+	PatternDelegateHandle = InDelegate.AddUObject(this, &UBoxingPatternWidget::HandleShowPattern);
+}
+
+void UBoxingPatternWidget::UnbindToPatternDelegate()
+{
+	if (BoundDelegate)
+	{
+		BoundDelegate->Remove(PatternDelegateHandle);
+		BoundDelegate = nullptr;
+	}
+}
+
+void UBoxingPatternWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	DirectionImages = {
+		{EPunchDirection::Left, Left_Direction_Image},
+		{EPunchDirection::Right, Right_Direction_Image},
+		{EPunchDirection::Up, Up_Direction_Image},
+		{EPunchDirection::Down, Down_Direction_Image},
+		{EPunchDirection::Punch, Punch_Direction_Image}
+	};
+
+	for (const auto& Image : DirectionImages)
+	{
+		Image.Value->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 void UBoxingPatternWidget::NativeDestruct()
 {
-	if (!BoxingActivityComponent) return;
-	// 델리게이트 구독 취소
-	BoxingActivityComponent->OnShowPattern.RemoveAll(this);
+	UnbindToPatternDelegate();
 
 	Super::NativeDestruct();
 }
 
 void UBoxingPatternWidget::HandleShowPattern(EPunchDirection Direction)
 {
-	//if (!Direction_TextBlock) return;
-	
-	UTexture2D* CurrentDirectionTexture = nullptr;
-
-	switch (Direction)
+	for (const auto& Image : DirectionImages)
 	{
-	case EPunchDirection::None:
-		{
-			//Direction_TextBlock->SetText(FText::FromString(TEXT("")));
-			Direction_Image->SetVisibility(ESlateVisibility::Hidden);
-			break;
-		}
-	case EPunchDirection::Left:
-		{
-			//Direction_TextBlock->SetText(FText::FromString(TEXT("<")));
-			CurrentDirectionTexture = Left_Texture;
-			break;
-		}
-	case EPunchDirection::Right:
-		{
-			//Direction_TextBlock->SetText(FText::FromString(TEXT(">")));
-			CurrentDirectionTexture = Right_Texture;
-			break;
-		}
-	case EPunchDirection::Up:
-		{
-			//Direction_TextBlock->SetText(FText::FromString(TEXT("^")));
-			CurrentDirectionTexture = Up_Texture;
-			break;
-		}
-	case EPunchDirection::Down:
-		{
-			//Direction_TextBlock->SetText(FText::FromString(TEXT("^")));
-			CurrentDirectionTexture = Down_Texture;
-			break;
-		}
-	case EPunchDirection::Punch:
-		{
-			//
-			//Direction_TextBlock->SetText(FText::FromString(TEXT("PUNCH!")));
-			CurrentDirectionTexture = Punch_Texture;
-			break;
-		}
-	case EPunchDirection::Start:
-		{
-			//Direction_TextBlock->SetText(FText::FromString(TEXT("Start!")));
-			CurrentDirectionTexture = Start_Texture;
-			break;
-		}
+		Image.Value->SetVisibility(ESlateVisibility::Hidden);
 	}
-	
-	if (!CurrentDirectionTexture) return;
-	
-	Direction_Image->SetBrushFromTexture(CurrentDirectionTexture);
-	Direction_Image->SetVisibility(ESlateVisibility::Visible);
+
+	if (UImage* FoundImage = DirectionImages.FindRef(Direction))
+	{
+		FoundImage->SetVisibility(ESlateVisibility::Visible);
+	}
 }

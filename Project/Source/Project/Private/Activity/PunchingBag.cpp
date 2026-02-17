@@ -5,9 +5,9 @@
 
 #include "DebugHelper.h"
 #include "Character/Player/AMainPlayer.h"
-#include "Character/Player/Component/Activity/BoxingActivityComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Widget/Interaction/InteractionWidget.h"
 
 APunchingBag::APunchingBag()
 {
@@ -18,7 +18,6 @@ APunchingBag::APunchingBag()
 	
 	InteractionWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractionWidget"));
 	InteractionWidgetComp->SetupAttachment(RootComponent);
-	InteractionWidgetComp->SetVisibility(false);
 }
 
 void APunchingBag::BeginPlay()
@@ -32,6 +31,13 @@ void APunchingBag::BeginPlay()
 		InteractionZone->OnComponentBeginOverlap.AddDynamic(this, &APunchingBag::OnOverlapBegin);
 		InteractionZone->OnComponentEndOverlap.AddDynamic(this, &APunchingBag::OnOverlapEnd);
 	}
+	
+	if (UInteractionWidget* Widget = Cast<UInteractionWidget>(InteractionWidgetComp->GetWidget()))
+	{
+		Widget->SetInteractionType(FText::FromString(TEXT("복싱하기")));
+	}
+	
+	SetWidgetVisibility(false);
 }
 
 bool APunchingBag::CanInteract() const
@@ -41,6 +47,8 @@ bool APunchingBag::CanInteract() const
 
 void APunchingBag::Interact(AActor* Interactor)
 {
+	SetWidgetVisibility(false);
+	
 	IBoxingActivityInterface* BoxingInterface = Cast<IBoxingActivityInterface>(Interactor);
 	if (!BoxingInterface) return;
 
@@ -58,11 +66,7 @@ void APunchingBag::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
 	// 현재 인터렉션 대상을 플레이어에게 전달
 	Player->SetCurrentInteractable(this);
 	
-	if (InteractionWidgetComp)
-	{
-		InteractionWidgetComp->SetVisibility(true);
-	}
-	
+	SetWidgetVisibility(true);
 }
 
 void APunchingBag::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -73,9 +77,14 @@ void APunchingBag::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* Oth
 
 	Player->SetCurrentInteractable(nullptr);
 	
+	SetWidgetVisibility(false);
+}
+
+void APunchingBag::SetWidgetVisibility(bool bIsVisible)
+{
 	if (InteractionWidgetComp)
 	{
-		InteractionWidgetComp->SetVisibility(false);
+		InteractionWidgetComp->SetVisibility(bIsVisible);
 	}
 }
 

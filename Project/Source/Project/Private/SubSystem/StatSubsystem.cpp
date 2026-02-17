@@ -5,6 +5,7 @@
 #include "SubSystem/UISubSystem.h"
 #include "SubSystem/Data/ContentData.h"
 #include "Widget/PlayerStat/PlayerStatWidget.h"
+#include "Widget/Inventory/PlaceableItemInventoryWidget.h"
 
 // 액티비티를 즐기고나서 보상을 적용한다.
 void UStatSubsystem::ApplyReward(const FStatReward& StatReward)
@@ -16,11 +17,15 @@ void UStatSubsystem::ApplyReward(const FStatReward& StatReward)
 	}
 	if (!UISubSystem) return;
 	
-	UPlayerStatWidget* PlayerStatWidget = UISubSystem->GetPlayerStatWidget();
+	// UPlayerStatWidget* PlayerStatWidget = UISubSystem->GetPlayerStatWidget();
+	//
+	// if (!PlayerStatWidget) return;
+	//
+	// PlayerStatWidget->UpdateStats(CurrentStats);
 	
-	if (!PlayerStatWidget) return;
+	UPlaceableItemInventoryWidget* PlaceableWidget = UISubSystem->GetPlaceableItemInventoryWidget();
+	PlaceableWidget->RefreshAvailableItems(CurrentStats[EPlayerStatType::Strength]);
 	
-	PlayerStatWidget->UpdateStats(CurrentStats);
 }
 
 void UStatSubsystem::Initialize(FSubsystemCollectionBase& Collection)

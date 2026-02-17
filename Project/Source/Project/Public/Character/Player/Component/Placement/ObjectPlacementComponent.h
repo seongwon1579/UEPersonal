@@ -26,6 +26,7 @@ public:
 	void CancelPlacement();
 	void TrySelectObject();
 	void RotateObject(float Direction);
+	void RotateObjectVertical(float Direction);
 	bool IsPreviewMode() const { return bIsPreview; }
 	void RemoveObject();
 
@@ -64,6 +65,7 @@ private:
 	bool bIsPreview = false;
 	bool bIsNewPlacing = false;
 	float CurrentRotationExtent = 0.f;
+	float CurrentPitchExtent = 0.f; 
 	float PreviewUpdateInterval = 0.016f;
 	float DoubleClickThreshold = 0.3f;
 	float LastEditStartTime;

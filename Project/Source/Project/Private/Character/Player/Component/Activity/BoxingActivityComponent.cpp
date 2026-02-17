@@ -27,11 +27,8 @@ UBoxingActivityComponent::UBoxingActivityComponent()
 
 void UBoxingActivityComponent::StartBoxing()
 {
-	if (!BoxingInputComponent)
-	{
-		Debug::Print("not bind to inputComponent");
-		return;
-	}
+	if (!BoxingInputComponent) return;
+
 	BoxingInputComponent->EnableBoxingInput(true);
 	
 	bIsBoxing = true;
@@ -78,6 +75,8 @@ void UBoxingActivityComponent::OnPunchInput()
 
 void UBoxingActivityComponent::OnDirectionInput(EPunchDirection Input)
 {
+	if (!bIsBoxing) return;
+	
 	// 이미 패턴이 끝났는데 입력이 추가로 들어온 경우
 	if (CurrentPatternIndex >= CurrentPattern.Num())
 	{
@@ -132,6 +131,13 @@ void UBoxingActivityComponent::BeginPlay()
 	StatSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UStatSubsystem>();
 	
 	BoxingInputComponent = GetOwner()->GetComponentByClass<UBoxingActivityInputComponent>();
+    
+	// 델리게이트 구독 추가
+	if (BoxingInputComponent)
+	{
+		BoxingInputComponent->OnDirectionInputDelegate.AddUObject(this, &UBoxingActivityComponent::OnDirectionInput);
+		BoxingInputComponent->OnPunchInputDelegate.AddUObject(this, &UBoxingActivityComponent::OnPunchInput);
+	}
 }
 
 void UBoxingActivityComponent::OnPatternFail()
@@ -149,6 +155,7 @@ void UBoxingActivityComponent::OnPatternFail()
 
 	AnimInstance->Montage_Play(FailMontage, 2.5f);
 
+	// 복싱 동작이 끝나고 호출되는 델리게이트
 	FOnMontageEnded EndDelegate;
 	EndDelegate.BindUObject(this, &UBoxingActivityComponent::OnFailAnimEnded);
 	AnimInstance->Montage_SetEndDelegate(EndDelegate, FailMontage);
@@ -227,13 +234,16 @@ void UBoxingActivityComponent::AddReward()
 
 void UBoxingActivityComponent::OnPatternSuccess()
 {
-	if (!AnimInstance || !PunchMontage) return;
+	if (!AnimInstance || PunchMontages.Num() == 0) return;
 
-	AnimInstance->Montage_Play(PunchMontage);
+	UAnimMontage* RandomMontage = PunchMontages[FMath::RandRange(0, PunchMontages.Num() - 1)];
+	if (!RandomMontage) return;
 
+	AnimInstance->Montage_Play(RandomMontage);
+    
 	FOnMontageEnded EndDelegate;
 	EndDelegate.BindUObject(this, &UBoxingActivityComponent::OnPunchAnimEnded);
-	AnimInstance->Montage_SetEndDelegate(EndDelegate, PunchMontage);
+	AnimInstance->Montage_SetEndDelegate(EndDelegate, RandomMontage);
 }
 
 void UBoxingActivityComponent::SetABPBoxingState(bool bBoxing)

@@ -110,7 +110,17 @@ void UObjectPlacementInputComponent::OnRotateAction(const FInputActionValue& Val
 	if (!PlacementComponent) return;
 
 	float ScrollValue = Value.Get<float>();
-	PlacementComponent->RotateObject(ScrollValue);
+	
+	if (PlayerController->IsInputKeyDown(EKeys::LeftShift) || 
+		PlayerController->IsInputKeyDown(EKeys::RightShift))
+	{
+		PlacementComponent->RotateObjectVertical(ScrollValue);
+	}
+	else
+	{
+		// 일반 스크롤 = 좌우 회전
+		PlacementComponent->RotateObject(ScrollValue);
+	}
 }
 
 // 물체 배치 시작 입력을 받는다.

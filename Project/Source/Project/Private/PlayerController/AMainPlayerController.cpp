@@ -27,27 +27,27 @@ void AAMainPlayerController::CreateWidgets()
 {
 	PlaceActorWidget = CreateWidget<UPlaceableItemInventoryWidget>(this, PlaceActorWidgetClass);
 	BoxingPatternWidget = CreateWidget<UBoxingPatternWidget>(this, BoxingPatternWidgetClass);
-	InteractionWidget = CreateWidget<UInteractionWidget>(this, InteractionWidgetClass);
-	PlayerStatWidget = CreateWidget<UPlayerStatWidget>(this, PlayerStatWidgetClass);
+	//InteractionWidget = CreateWidget<UInteractionWidget>(this, InteractionWidgetClass);
+	//PlayerStatWidget = CreateWidget<UPlayerStatWidget>(this, PlayerStatWidgetClass);
 	DialogueWidget = CreateWidget<UDialogueWidget>(this, DialogueWidgetClass);
 	
-	if (!PlaceActorWidget || !BoxingPatternWidget || !InteractionWidget || !PlayerStatWidget || !DialogueWidget) return;
+	if (!PlaceActorWidget || !BoxingPatternWidget ||  !DialogueWidget) return;
 	
 	PlaceActorWidget->AddToViewport();
 	BoxingPatternWidget->AddToViewport();
-	InteractionWidget->AddToViewport();
-	PlayerStatWidget->AddToViewport();
+	//InteractionWidget->AddToViewport();
+	//PlayerStatWidget->AddToViewport();
 	DialogueWidget->AddToViewport();
 	
 	PlaceActorWidget->SetVisibility(ESlateVisibility::Collapsed);
 	BoxingPatternWidget->SetVisibility(ESlateVisibility::Collapsed);
-	InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
-	PlayerStatWidget->SetVisibility(ESlateVisibility::Collapsed);
+	//InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
+	//PlayerStatWidget->SetVisibility(ESlateVisibility::Collapsed);
 	DialogueWidget->SetVisibility(ESlateVisibility::Collapsed);
 	
 	UISubSystem = GetGameInstance()->GetSubsystem<UUISubSystem>();
 	
 	if (!UISubSystem) return;
 	
-	UISubSystem->RegisterWidgets(PlaceActorWidget, BoxingPatternWidget, InteractionWidget, PlayerStatWidget, DialogueWidget);
+	UISubSystem->RegisterWidgets(PlaceActorWidget, BoxingPatternWidget, DialogueWidget);
 }

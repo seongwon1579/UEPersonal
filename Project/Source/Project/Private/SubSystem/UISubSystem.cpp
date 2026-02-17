@@ -11,6 +11,7 @@
 #include "Widget/Dialogue/DialogueWidget.h"
 #include "Widget/Interaction/InteractionWidget.h"
 #include "Widget/PlayerStat/PlayerStatWidget.h"
+#include "Character/Player/Component/Activity/BoxingActivityComponent.h"
 
 void UUISubSystem::ShowPlaceActorWidget()
 {
@@ -38,40 +39,40 @@ void UUISubSystem::HidePlaceActorWidget()
 void UUISubSystem::ShowBoxingPatternWidget(UBoxingActivityComponent* InBoxingActivityComponent)
 {
 	if (!BoxingPatternWidget || !InBoxingActivityComponent) return;
-	
-	BoxingPatternWidget->InitWidget(InBoxingActivityComponent);
+	BoxingPatternWidget->BindToPatternDelegate(InBoxingActivityComponent->OnShowPattern);
 	BoxingPatternWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UUISubSystem::HideBoxingPatternWidget()
 {
 	if (!BoxingPatternWidget) return;
+	BoxingPatternWidget->UnbindToPatternDelegate();
 	BoxingPatternWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
-void UUISubSystem::ShowInteractionWidget()
-{
-	if (!InteractionWidget) return;
-	InteractionWidget->SetVisibility(ESlateVisibility::Visible);
-}
+// void UUISubSystem::ShowInteractionWidget()
+// {
+// 	if (!InteractionWidget) return;
+// 	InteractionWidget->SetVisibility(ESlateVisibility::Visible);
+// }
 
-void UUISubSystem::HideInteractionWidget()
-{
-	if (!InteractionWidget) return;
-	InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
-}
+// void UUISubSystem::HideInteractionWidget()
+// {
+// 	if (!InteractionWidget) return;
+// 	InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
+// }
 
-void UUISubSystem::ShowPlayerStatWidget()
-{
-	if (!PlayerStatWidget) return;
-	PlayerStatWidget->SetVisibility(ESlateVisibility::Visible);
-}
-
-void UUISubSystem::HidePlayerStatWidget()
-{
-	if (!PlayerStatWidget) return;
-	PlayerStatWidget->SetVisibility(ESlateVisibility::Collapsed);
-}
+// void UUISubSystem::ShowPlayerStatWidget()
+// {
+// 	if (!PlayerStatWidget) return;
+// 	PlayerStatWidget->SetVisibility(ESlateVisibility::Visible);
+// }
+//
+// void UUISubSystem::HidePlayerStatWidget()
+// {
+// 	if (!PlayerStatWidget) return;
+// 	PlayerStatWidget->SetVisibility(ESlateVisibility::Collapsed);
+// }
 
 void UUISubSystem::ShowDialogueWidget(UDialogueComponent* InDialogueComponent)
 {
@@ -86,11 +87,11 @@ void UUISubSystem::HideDialogueWidget()
 	DialogueWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
-void UUISubSystem::RegisterWidgets(UPlaceableItemInventoryWidget* InPlaceActorWidget, UBoxingPatternWidget* InBoxingPatternWidget, UInteractionWidget* InInteractionWidget, UPlayerStatWidget* InPlayerStatWidget, UDialogueWidget* InDialogueWidget)
+void UUISubSystem::RegisterWidgets(UPlaceableItemInventoryWidget* InPlaceActorWidget, UBoxingPatternWidget* InBoxingPatternWidget, UDialogueWidget* InDialogueWidget)
 {
 	PlaceActorWidget = InPlaceActorWidget;
 	BoxingPatternWidget = InBoxingPatternWidget;
-	InteractionWidget = InInteractionWidget;
-	PlayerStatWidget = InPlayerStatWidget;
+	//InteractionWidget = InInteractionWidget;
+	//PlayerStatWidget = InPlayerStatWidget;
 	DialogueWidget = InDialogueWidget;
 }

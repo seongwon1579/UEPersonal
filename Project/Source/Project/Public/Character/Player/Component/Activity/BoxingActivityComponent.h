@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Interfaces/Activity/BoxingActivityInterface.h"
 #include "Character/Player/Component/Activity/Data/BoxingData.h"
 
 #include "BoxingActivityComponent.generated.h"
@@ -16,7 +15,7 @@ class UUISubSystem;
 class UCharacterMovementComponent;
 class AnimInstance;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnShowPattern, EPunchDirection)
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_API UBoxingActivityComponent : public UActorComponent
@@ -24,21 +23,8 @@ class PROJECT_API UBoxingActivityComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	UFUNCTION(BlueprintCallable)
 	bool IsBoxing() const;
-	UFUNCTION()
 	void StartBoxing();
-	void OnPunchInput();
-	void OnDirectionInput(EPunchDirection Input); 
-	
-	UPROPERTY(EditAnywhere, Category = "Animation")
-	UAnimMontage* PunchMontage;
-	UPROPERTY(EditAnywhere, Category = "Animation")
-	UAnimMontage* FailMontage;
-	UPROPERTY()
-	TArray<EPunchDirection> CurrentPattern;
-	UPROPERTY()
-	UBoxingActivityInputComponent* BoxingInputComponent;
 	
 	FOnShowPattern OnShowPattern;
 
@@ -46,6 +32,8 @@ private:
 	UBoxingActivityComponent();
 	virtual void BeginPlay() override;
 	
+	void OnPunchInput();
+	void OnDirectionInput(EPunchDirection Input); 
 	void GeneratePattern();
 	void OnPatternFail();
 	void OnPunchAnimEnded(UAnimMontage* Montage, bool bInterrupted);
@@ -73,6 +61,15 @@ private:
 	UCharacterMovementComponent* MovementComponent;
 	UPROPERTY()
 	UAnimInstance* AnimInstance;
+	
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	TArray<UAnimMontage*> PunchMontages;
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	UAnimMontage* FailMontage;
+	UPROPERTY()
+	TArray<EPunchDirection> CurrentPattern;
+	UPROPERTY()
+	UBoxingActivityInputComponent* BoxingInputComponent;
 
 	FTimerHandle TimerHandle;
 };

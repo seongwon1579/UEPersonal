@@ -12,3 +12,8 @@ void UPlaceableItemInventoryWidget::SetupWithData(EPlaceableItemType PlaceableIt
 	// 슬롯을 설정할 수 있도록 데이터를 넘긴다.
 	PlaceableItemSelectionWidget->PopulateGrid(PlaceableItemType, DataArray);
 }
+
+void UPlaceableItemInventoryWidget::RefreshAvailableItems(int32 Value)
+{
+	PlaceableItemSelectionWidget->RefreshAvailableItems(Value);
+}

@@ -10,24 +10,19 @@
 #include "Components/SizeBox.h"
 #include "Goods/Data/FPlaceableItemData.h"
 
-//TODO: 필요없는 듯
-void UPlaceableItemSlotWidget::SetSizeBox(float Width, float Height)
-{
-	if (!FurnitureSlot_SizeBox) return;
-
-	FurnitureSlot_SizeBox->SetWidthOverride(Width);
-	FurnitureSlot_SizeBox->SetHeightOverride(Height);
-}
 
 //슬롯을 세팅한다.
 void UPlaceableItemSlotWidget::SetupSlot(FPlaceableItemData* Data)
 {
-	FurnitureItemData = Data;
+	FurnitureItemData = Data;  
 
 	if (Data->Image)
 	{
 		FSlateBrush Brush;
 		Brush.SetResourceObject(Data->Image);
+		Brush.ImageSize = FVector2D(140.f, 140.f);  
+		Brush.DrawAs = ESlateBrushDrawType::Image;
+		Brush.ImageType = ESlateBrushImageType::FullColor;
 
 		FSlateBrush HoveredBrush = Brush;
 		HoveredBrush.TintColor = FSlateColor(FLinearColor(1.2f, 1.2f, 1.2f, 1.f));
@@ -35,19 +30,16 @@ void UPlaceableItemSlotWidget::SetupSlot(FPlaceableItemData* Data)
 		FSlateBrush PressedBrush = Brush;
 		PressedBrush.TintColor = FSlateColor(FLinearColor(0.8f, 0.8f, 0.8f, 1.f));
 
-		FButtonStyle NewStyle = FurnitureIconBtn->GetStyle();
+		FButtonStyle NewStyle = FurnitureIcon_Button->GetStyle();
 		NewStyle.Normal = Brush;
 		NewStyle.Hovered = HoveredBrush;
 		NewStyle.Pressed = PressedBrush;
 		NewStyle.Disabled = Brush;
 
-		FurnitureIconBtn->SetStyle(NewStyle);
+		FurnitureIcon_Button->SetStyle(NewStyle);
 	}
-
-	if (!Data->Name.IsNone())
-	{
-		FurnitureSlot_Name_TextBlock->SetText(FText::FromName(Data->Name));
-	}
+	
+	FurnitureSlotName_TextBlock->SetText(FText::AsNumber(Data->Strength));
 }
 
 // 버튼을 클릭시 물체 배치를 구현할 수 있는 플레이어이면 배치에 필요한 정보를 넘긴다.
@@ -62,10 +54,15 @@ void UPlaceableItemSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	// 버튼 이벤트 등록
-	FurnitureIconBtn->OnClicked.AddDynamic(this, &UPlaceableItemSlotWidget::OnButtonClicked);
+	if (FurnitureIcon_Button)
+	{
+		FurnitureIcon_Button->OnClicked.AddDynamic(this, &UPlaceableItemSlotWidget::OnButtonClicked);
+	}
 
 	// 컴포넌트 캐싱
-	OwningPlayerController = GetOwningPlayer();
-	PlacementComponent = OwningPlayerController->GetPawn()->FindComponentByClass<UObjectPlacementComponent>();
+	PlayerController = GetOwningPlayer();
+	if (PlayerController && PlayerController->GetPawn())
+	{
+		PlacementComponent = PlayerController->GetPawn()->FindComponentByClass<UObjectPlacementComponent>();
+	}
 }

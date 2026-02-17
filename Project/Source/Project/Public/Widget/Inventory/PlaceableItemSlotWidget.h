@@ -21,7 +21,6 @@ UCLASS()
 class PROJECT_API UPlaceableItemSlotWidget : public UUserWidget
 {
 public:
-	void SetSizeBox(float Width, float Height);
 	void SetupSlot(FPlaceableItemData* Data);
 
 	GENERATED_BODY()
@@ -29,14 +28,12 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	USizeBox* FurnitureSlot_SizeBox;
 	
-	UPROPERTY(meta = (BindWidget))
-	UImage* FurnitureSlot_Thumbnail_Image;
 	
 	UPROPERTY(meta =(BindWidget))
-	UButton* FurnitureIconBtn;
+	UButton* FurnitureIcon_Button;
 	
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* FurnitureSlot_Name_TextBlock;
+	UTextBlock* FurnitureSlotName_TextBlock;
 
 	UFUNCTION()
 	void OnButtonClicked();
@@ -46,7 +43,7 @@ public:
 private:
 	FPlaceableItemData* FurnitureItemData;
 	UPROPERTY()
-	APlayerController* OwningPlayerController;
+	APlayerController* PlayerController;
 	UPROPERTY()
 	UObjectPlacementComponent* PlacementComponent;
 };

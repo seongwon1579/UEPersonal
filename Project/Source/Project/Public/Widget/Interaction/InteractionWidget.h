@@ -11,12 +11,16 @@
  */
 
 class UTextBlock;
+
 UCLASS()
 class PROJECT_API UInteractionWidget : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
+public:
+	void SetInteractionType(const FText& Text);
+
+private:
 	UPROPERTY(meta =(BindWidget))
 	UTextBlock* Interaction_TextBlock;
-	
 };

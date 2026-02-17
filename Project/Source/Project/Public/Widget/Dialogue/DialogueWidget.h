@@ -26,10 +26,6 @@ class PROJECT_API UDialogueWidget : public UUserWidget
 public:
 	FOnDialogueChoiceSelected OnDialogueChoiceSelected;
 	
-	// void InitWidget(UDialogueComponent* InDialogueComponent);
-	// void ShowResponse(const FDialogueResult& Result);
-	// void RefreshDisplay();
-	
 	void UpdateDialogueDisplay(const FNextNodeData& Data);
 	void ShowResponseText(const FText& ResponseText);
 

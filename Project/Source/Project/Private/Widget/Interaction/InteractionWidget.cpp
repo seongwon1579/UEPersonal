@@ -2,4 +2,12 @@
 
 
 #include "Widget/Interaction/InteractionWidget.h"
+#include "Components/TextBlock.h"
 
+void UInteractionWidget::SetInteractionType(const FText& Text)
+{
+	if (Interaction_TextBlock)
+	{
+		Interaction_TextBlock->SetText(Text);
+	}
+}

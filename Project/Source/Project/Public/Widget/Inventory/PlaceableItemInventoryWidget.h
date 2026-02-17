@@ -19,6 +19,7 @@ class PROJECT_API UPlaceableItemInventoryWidget : public UUserWidget
 	
 public:
 	void SetupWithData(EPlaceableItemType PlaceableItemType, const TArray<FPlaceableItemData*>& DataArray);
+	void RefreshAvailableItems(int32 Value);
 	
 
 private:

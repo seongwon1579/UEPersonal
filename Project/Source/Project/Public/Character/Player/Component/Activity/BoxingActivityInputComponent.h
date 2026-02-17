@@ -4,20 +4,28 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Data/BoxingData.h"
 #include "BoxingActivityInputComponent.generated.h"
 
-class APlayerController;
-class UBoxingActivityComponent;
 class UInputMappingContext;
 class UInputAction;
 class UEnhancedInputLocalPlayerSubsystem;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnDirectionInput, EPunchDirection);
+DECLARE_MULTICAST_DELEGATE(FOnPunchInput);
+
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECT_API UBoxingActivityInputComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
+	void EnableBoxingInput(bool Enable);
+	
+	FOnDirectionInput OnDirectionInputDelegate;
+	FOnPunchInput OnPunchInputDelegate;
+
+private:
 	UBoxingActivityInputComponent();
 	virtual void BeginPlay() override;
 	void BindInputActions(UEnhancedInputComponent* EnhancedInputComponent);
@@ -26,11 +34,10 @@ public:
 	void OnUpInput();
 	void OnDownInput();
 	void OnPunchInput();
-	void EnableBoxingInput(bool Enable);
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* BoxingMappingContext;
-	
+
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* LeftAction;
 
@@ -39,19 +46,13 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* UpAction;
-	
+
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* DownAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* PunchAction;
-	
-	UPROPERTY()
-	APlayerController* PlayerController;
-	
-	UPROPERTY()
-	UBoxingActivityComponent* BoxingComponent;
-	
+
 	UPROPERTY()
 	UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem;
 };

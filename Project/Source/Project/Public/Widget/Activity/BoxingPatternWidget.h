@@ -21,38 +21,36 @@ class PROJECT_API UBoxingPatternWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void InitWidget(UBoxingActivityComponent* InComponent);
+	void BindToPatternDelegate(FOnShowPattern& InDelegate);
+	void UnbindToPatternDelegate();
 
 protected:
+	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
 private:
 	void HandleShowPattern(EPunchDirection Direction);
-
-	// UPROPERTY(meta =(BindWidget))
-	// UTextBlock* Direction_TextBlock;
+	
+	FDelegateHandle PatternDelegateHandle;
+	FOnShowPattern* BoundDelegate = nullptr;
+	
+	UPROPERTY()
+	TMap<EPunchDirection, UImage*> DirectionImages;
 	
 	UPROPERTY(meta =(BindWidget))
-	UImage* Direction_Image;
+	UImage* Left_Direction_Image;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Pattern Images")
-	UTexture2D* Right_Texture;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Pattern Images")
-	UTexture2D* Left_Texture;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Pattern Images")
-	UTexture2D* Up_Texture;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Pattern Images")
-	UTexture2D* Down_Texture;
+	UPROPERTY(meta =(BindWidget))
+	UImage* Right_Direction_Image;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Pattern Images")
-	UTexture2D* Punch_Texture;
+	UPROPERTY(meta =(BindWidget))
+	UImage* Up_Direction_Image;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Pattern Images")
-	UTexture2D* Start_Texture;
+	UPROPERTY(meta =(BindWidget))
+	UImage* Down_Direction_Image;
 	
+	UPROPERTY(meta =(BindWidget))
+	UImage* Punch_Direction_Image;
 	
 	UPROPERTY()
 	UBoxingActivityComponent* BoxingActivityComponent;

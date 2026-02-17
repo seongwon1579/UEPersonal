@@ -19,12 +19,8 @@ void UBoxingActivityInputComponent::BeginPlay()
 	APawn* Pawn = Cast<APawn>(GetOwner());
 	if (!Pawn) return;
 	
-	// 복싱컴포넌트 캐싱
-	BoxingComponent = Pawn->FindComponentByClass<UBoxingActivityComponent>();
-	if (!BoxingComponent) return;
-
 	// 컨트롤러 캐싱
-	PlayerController = Cast<APlayerController>(Pawn->GetController());
+	APlayerController* PlayerController = Cast<APlayerController>(Pawn->GetController());
 	if (!PlayerController) return;
 
 	// EIC 캐싱
@@ -72,37 +68,27 @@ void UBoxingActivityInputComponent::BindInputActions(UEnhancedInputComponent* En
 
 void UBoxingActivityInputComponent::OnLeftInput()
 {
-	if (!BoxingComponent || !BoxingComponent->IsBoxing()) return;
-
-	BoxingComponent->OnDirectionInput(EPunchDirection::Left);
+	OnDirectionInputDelegate.Broadcast(EPunchDirection::Left);
 }
 
 void UBoxingActivityInputComponent::OnRightInput()
 {
-	if (!BoxingComponent || !BoxingComponent->IsBoxing()) return;
-
-	BoxingComponent->OnDirectionInput(EPunchDirection::Right);
+	OnDirectionInputDelegate.Broadcast(EPunchDirection::Right);
 }
 
 void UBoxingActivityInputComponent::OnUpInput()
 {
-	if (!BoxingComponent || !BoxingComponent->IsBoxing()) return;
-
-	BoxingComponent->OnDirectionInput(EPunchDirection::Up);
+	OnDirectionInputDelegate.Broadcast(EPunchDirection::Up);
 }
 
 void UBoxingActivityInputComponent::OnDownInput()
 {
-	if (!BoxingComponent || !BoxingComponent->IsBoxing()) return;
-
-	BoxingComponent->OnDirectionInput(EPunchDirection::Down);
+	OnDirectionInputDelegate.Broadcast(EPunchDirection::Down);
 }
 
 void UBoxingActivityInputComponent::OnPunchInput()
 {
-	if (!BoxingComponent || !BoxingComponent->IsBoxing()) return;
-
-	BoxingComponent->OnPunchInput();
+	OnPunchInputDelegate.Broadcast();
 }
 
 // 복싱이 시작되고 끝날 때, 인풋 추가 삭제

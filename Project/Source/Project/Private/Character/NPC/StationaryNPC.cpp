@@ -2,11 +2,11 @@
 
 
 #include "Character/NPC/StationaryNPC.h"
-#include "DebugHelper.h"
 #include "Character/NPC/StationaryNPCAnimInstance.h"
 #include "Character/Player/AMainPlayer.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Widget/Interaction/InteractionWidget.h"
 
 AStationaryNPC::AStationaryNPC()
 {
@@ -17,24 +17,20 @@ AStationaryNPC::AStationaryNPC()
 
 	MeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	MeshComponent->SetupAttachment(RootComponent);
-
+	
 	InteractionZone = CreateDefaultSubobject<USphereComponent>(TEXT("Interactable"));
 	InteractionZone->SetupAttachment(RootComponent);
 	
 	InteractionWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractionWidget"));
 	InteractionWidgetComp->SetupAttachment(RootComponent);
-	InteractionWidgetComp->SetVisibility(false);
-
-	// 인터렉션존 overlap 이벤트 등록
-	if (InteractionZone)
-	{
-		InteractionZone->OnComponentBeginOverlap.AddDynamic(this, &AStationaryNPC::OnOverlapBegin);
-		InteractionZone->OnComponentEndOverlap.AddDynamic(this, &AStationaryNPC::OnOverlapEnd);
-	}
+	
+	SetWidgetVisibility(false);
 }
 
 void AStationaryNPC::Interact(AActor* OtherActor)
 {
+	SetWidgetVisibility(false);
+	
 	if (IDialogueInstigator* DialogueInstigator = Cast<IDialogueInstigator>(OtherActor))
 	{
 		DialogueInstigator->StartDialogueWith(this);
@@ -102,37 +98,30 @@ const FNextNodeData AStationaryNPC::GetNextNodeData()
 	return Data;
 }
 
-
-// TArray<FDialogueOption> AStationaryNPC::GetCurrentOptions() const
-// {
-// 	FDialogueNode CurrentNode = GetCurrentNode();
-// 	TArray<FDialogueOption> AvailableOptions;
-//
-// 	const TArray<int32>* UsedIndices = UsedOptions.Find(CurrentNodeID);
-//
-// 	for (int32 i = 0; i < CurrentNode.Options.Num(); i++)
-// 	{
-// 		// 조건: bOneTimeOnly가 true이고 + 이미 사용한 선택지면
-// 		if (CurrentNode.Options[i].bOneTimeOnly && UsedIndices && UsedIndices->Contains(i))
-// 		{
-// 			continue;
-// 		}
-// 		AvailableOptions.Add(CurrentNode.Options[i]);
-// 	}
-//
-// 	return AvailableOptions;
-// }
-
-
 void AStationaryNPC::BeginPlay()
 {
 	Super::BeginPlay();
 	
 	UAnimInstance* AnimInstance = MeshComponent->GetAnimInstance();
 	StationaryNPCAnimInstance = Cast<UStationaryNPCAnimInstance>(AnimInstance);
+	
+	if (!bCanDialogue) return;
+
+	if (InteractionZone)
+	{
+		InteractionZone->OnComponentBeginOverlap.AddDynamic(this, &AStationaryNPC::OnDialogueOverlapBegin);
+		InteractionZone->OnComponentEndOverlap.AddDynamic(this, &AStationaryNPC::OnDialogueOverlapEnd);
+	}
+	
+	if (UInteractionWidget* Widget = Cast<UInteractionWidget>(InteractionWidgetComp->GetWidget()))
+	{
+		Widget->SetInteractionType(FText::FromString(TEXT("대화하기")));
+	}
+	
+	SetWidgetVisibility(false);
 }
 
-void AStationaryNPC::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void AStationaryNPC::OnDialogueOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                     const FHitResult& SweepResult)
 {
@@ -141,27 +130,20 @@ void AStationaryNPC::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 
 	Player->SetCurrentInteractable(this);
 	
-	if (InteractionWidgetComp)
-	{
-		InteractionWidgetComp->SetVisibility(true);
-		InteractionWidgetComp->SetHiddenInGame(false);
-	}
-	
+	SetWidgetVisibility(true);
 }
 
-void AStationaryNPC::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void AStationaryNPC::OnDialogueOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                   UPrimitiveComponent* OtherComp,
                                   int32 OtherBodyIndex)
 {
+	if (!bCanDialogue) return;
 	AMainPlayer* Player = Cast<AMainPlayer>(OtherActor);
 	if (!Player) return;
 
 	Player->SetCurrentInteractable(nullptr);
 	
-	if (InteractionWidgetComp)
-	{
-		InteractionWidgetComp->SetVisibility(false);
-	}
+	SetWidgetVisibility(false);
 }
 
 
@@ -179,4 +161,12 @@ void AStationaryNPC::PlayReaction(EDialogueReaction Reaction)
 	if (Reaction == EDialogueReaction::None) return;
 	
 	StationaryNPCAnimInstance->PlayReaction(Reaction);
+}
+
+void AStationaryNPC::SetWidgetVisibility(bool bVisible)
+{
+	if (InteractionWidgetComp)
+	{
+		InteractionWidgetComp->SetVisibility(bVisible);
+	}
 }

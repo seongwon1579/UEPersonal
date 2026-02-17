@@ -32,9 +32,6 @@ struct FPlaceableItemData: public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName Name;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UTexture2D* Thumbnail = nullptr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Strength;

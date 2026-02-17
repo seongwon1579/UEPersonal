@@ -38,7 +38,18 @@ void UObjectPlacementComponent::RotateObject(float Direction)
 	if (!bIsPreview || !HomeGoods) return;
 
 	CurrentRotationExtent += RotationSpeed * Direction;
-	HomeGoods->SetActorRotation(FRotator(0.f, CurrentRotationExtent, 0.f));
+	HomeGoods->SetActorRotation(FRotator(CurrentPitchExtent, CurrentRotationExtent, 0.f));
+	
+}
+
+void UObjectPlacementComponent::RotateObjectVertical(float Direction)
+{
+	if (!bIsPreview || !HomeGoods) return;
+
+	CurrentPitchExtent += RotationSpeed * Direction;
+	
+	HomeGoods->SetActorRotation(FRotator(CurrentPitchExtent, CurrentRotationExtent, 0.f));
+	
 }
 
 // 배치가 된 물체를 재선택하여 재배치를 시도한다.
@@ -68,6 +79,7 @@ void UObjectPlacementComponent::TrySelectObject()
 		// 이전 transform 정보와 회전정도를 저장(배치 취소를 대비)
 		PrevTransform = HomeGoods->GetActorTransform();
 		CurrentRotationExtent = HomeGoods->GetActorRotation().Yaw;
+		CurrentPitchExtent = HomeGoods->GetActorRotation().Pitch;
 		
 		// 더블클릭으로 물체를 선택하려고 할 때 단순 클릭으로 잘 못 사용된느것을  방지 하기 위해 캐싱
 		LastEditStartTime = GetWorld()->GetTimeSeconds();
@@ -85,6 +97,7 @@ void UObjectPlacementComponent::StartPlacement()
 	bIsNewPlacing = true;
 	
 	CurrentRotationExtent = 0.f;
+	CurrentPitchExtent = 0.f;  
 	
 	// 현재 선택된 객체가 프리뷰 모드 시에 필요한 설정 하도록 호출
 	SetupPreview();
@@ -122,7 +135,6 @@ void UObjectPlacementComponent::PreparePlacement_Implementation(const FPlaceable
 
 	if (!HomeGoods) return;
 
-	//HomeGoods->SetHomeGoods(ItemData.Material, ItemData.Mesh);
 	HomeGoods->SetHomeGoods(ItemData.Materials, ItemData.Mesh);
 	
 	StartPlacement();
@@ -149,7 +161,7 @@ void UObjectPlacementComponent::UpdatePlacementPreview()
 
 	if (bHit)
 	{
-		HomeGoods->SetActorLocationAndRotation(Hit.Location, FRotator(0.f, CurrentRotationExtent, 0.f));
+		HomeGoods->SetActorLocationAndRotation(Hit.Location, FRotator(CurrentPitchExtent, CurrentRotationExtent, 0.f));
 		HomeGoods->CheckSpawn();
 	}
 }
@@ -194,7 +206,6 @@ void UObjectPlacementComponent::ConfirmPlacement()
 		HomeGoods->Place();
 		ResetPlacement();
 	}
-	//PlayerController->bShowMouseCursor = false;
 }
 
 // 최초 배치를 시도하다 취소 하는경우 오브젝트를 삭제한다.
@@ -215,5 +226,4 @@ void UObjectPlacementComponent::CancelPlacement()
 		PlaceableItemSubsystem->GetStaticMeshPool()->ReturnHomeGoods(HomeGoods);
 	}
 	ResetPlacement();
-	//PlayerController->bShowMouseCursor = false;
 }

@@ -11,3 +11,5 @@ enum class EPunchDirection : uint8
 	Punch = 5,
 	Start = 6
 };
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnShowPattern, EPunchDirection);

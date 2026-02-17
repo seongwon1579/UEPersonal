@@ -31,8 +31,8 @@ public:
 	UPROPERTY()
 	UPlaceableItemInventoryWidget* PlaceActorWidget;
 
-	UPROPERTY()
-	UInteractionWidget* InteractionWidget;
+	// UPROPERTY()
+	// UInteractionWidget* InteractionWidget;
 
 	UPROPERTY()
 	UPlayerStatWidget* PlayerStatWidget;
@@ -41,7 +41,7 @@ public:
 	UDialogueWidget* DialogueWidget;
 
 	// 물건 배치
-	UFUNCTION(blueprintCallable)
+	UPlaceableItemInventoryWidget* GetPlaceableItemInventoryWidget() {return PlaceActorWidget;};
 	void ShowPlaceActorWidget();
 	void HidePlaceActorWidget();
 
@@ -49,15 +49,15 @@ public:
 	void ShowBoxingPatternWidget(UBoxingActivityComponent* InBoxingActivityComponent);
 	void HideBoxingPatternWidget();
 
-	// 인터렉션
-	void ShowInteractionWidget();
-	void HideInteractionWidget();
+	// // 인터렉션
+	// void ShowInteractionWidget();
+	// void HideInteractionWidget();
 
 	// 스텟
-	UPlayerStatWidget* GetPlayerStatWidget() { return PlayerStatWidget; };
-	UFUNCTION(blueprintCallable)
-	void ShowPlayerStatWidget();
-	void HidePlayerStatWidget();
+	// UPlayerStatWidget* GetPlayerStatWidget() { return PlayerStatWidget; };
+	// UFUNCTION(blueprintCallable)
+	// void ShowPlayerStatWidget();
+	// void HidePlayerStatWidget();
 	
 	// 대화
 	UDialogueWidget* GetDialogueWidget() { return DialogueWidget; };
@@ -67,8 +67,6 @@ public:
 	void RegisterWidgets(
 		UPlaceableItemInventoryWidget* InPlaceActorWidget,
 		UBoxingPatternWidget* InBoxingPatternWidget,
-		UInteractionWidget* InInteractionWidget,
-		UPlayerStatWidget* InPlayerStatWidget,
 		UDialogueWidget* InDialogueWidget);
 };
 

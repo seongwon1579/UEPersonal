@@ -45,6 +45,8 @@ protected:
 	                  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 private:
+	
+	void SetWidgetVisibility(bool bIsVisible);
 	UPROPERTY(EditAnywhere, Category = "Interaction")
 	UBoxComponent* InteractionZone;
 };

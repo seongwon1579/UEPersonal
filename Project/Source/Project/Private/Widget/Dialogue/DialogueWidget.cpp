@@ -26,7 +26,7 @@ void UDialogueWidget::UpdateDialogueDisplay(const FNextNodeData& Data)
 void UDialogueWidget::ShowResponseText(const FText& ResponseText)
 {
 	if (Choice_VerticalBox)
-		Choice_VerticalBox->SetVisibility(ESlateVisibility::Collapsed);
+		Choice_VerticalBox->SetVisibility(ESlateVisibility::Hidden);
     
 	if (Dialogue_TextBlock)
 		Dialogue_TextBlock->SetText(ResponseText);
