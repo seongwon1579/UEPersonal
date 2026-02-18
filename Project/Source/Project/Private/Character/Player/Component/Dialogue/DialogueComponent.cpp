@@ -84,11 +84,11 @@ void UDialogueComponent::HandleDialogueResponse(const FDialogueResult& Result)
 	
 	if (Result.bIsEnd)
 	{
-		GetWorld()->GetTimerManager().SetTimer(ResponseTimerHandle, this, &UDialogueComponent::EndDialogue, 1.f, false);
+		GetWorld()->GetTimerManager().SetTimer(ResponseTimerHandle, this, &UDialogueComponent::EndDialogue, 3.f, false);
 	}
 	else
 	{
-		GetWorld()->GetTimerManager().SetTimer(ResponseTimerHandle, this, &UDialogueComponent::ShowNextNode, 1.5f,
+		GetWorld()->GetTimerManager().SetTimer(ResponseTimerHandle, this, &UDialogueComponent::ShowNextNode, 3.f,
 		                                       false);
 	}
 }

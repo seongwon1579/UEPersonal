@@ -23,11 +23,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	TArray<FIdleAnimData> IdleAnims;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	UAnimSequence* GreetingAnim;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	UAnimSequence* TalkAnim;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
+	// UAnimSequence* GreetingAnim;
+	//
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
+	// UAnimSequence* TalkAnim;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations|Reaction")
 	TMap<EDialogueReaction, UAnimMontage*> ReactionMontages;

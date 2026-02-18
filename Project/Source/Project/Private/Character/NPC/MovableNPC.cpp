@@ -39,6 +39,8 @@ void AMovableNPC::BeginPlay()
 	SetActorLocation(StartLocation);
 
 	AnimInstance = Cast<UMovableNPCAnimInstance>(GetMesh()->GetAnimInstance());
+	
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, RotationStrength, 0.0f);
 }
 
 AMovableNPC::AMovableNPC()
@@ -48,39 +50,34 @@ AMovableNPC::AMovableNPC()
 
 	SplineComp->SetupAttachment(RootComponent);
 
-	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, RotationStrength, 0.0f);
 	bUseControllerRotationYaw = false;
 }
 
 void AMovableNPC::MoveAlongSpline(float DeltaSeconds)
 {
-	// Spline을 따라 이동하면 끝점에 다다르면 시작점으로 이동
+	FVector Location = GetActorLocation();
+	
+	// FindInputKeyClosestToWorldLocation : 스플라인 포인트 사이의 보간 인덱스
+	// GetDistanceAlongSplineAtSplineInputKey : 현재 거리
+	CurrentDistance = SplineComp->GetDistanceAlongSplineAtSplineInputKey(SplineComp->FindInputKeyClosestToWorldLocation(Location));
+
+	bool bReachedEnd = bMovingForward && CurrentDistance >= SplineLength - 30.f;
+	bool bReachedStart = !bMovingForward && CurrentDistance <= 30.f;
+
+	if (bReachedEnd || bReachedStart)
+	{
+		bMovingForward = !bMovingForward;
+		bIsWaiting = true;
+		return;
+	}
+
 	float Direction = bMovingForward ? 1.f : -1.f;
-	CurrentDistance += MoveSpeed * DeltaSeconds * Direction;
 	
-	// 종점에 다다르면
-	if (CurrentDistance >= SplineLength)
-	{
-		CurrentDistance = SplineLength;
-		bMovingForward = false;
-		bIsWaiting = true;
-	}
-	// 시점에 다다르면
-	else if (CurrentDistance <= 0.f)
-	{
-		CurrentDistance = 0.f;
-		bMovingForward = true;
-		bIsWaiting = true;
-	}
-	
-	// Spline 이동시에 현재 이동지점에서 방향 벡터
-	FVector MoveDirection = SplineComp->GetDirectionAtDistanceAlongSpline(
+	FVector MoveDir = SplineComp->GetDirectionAtDistanceAlongSpline(
 		CurrentDistance, ESplineCoordinateSpace::World) * Direction;
 
-	// 해당 방향벡터로 설정 속도로 이동
-	AddMovementInput(MoveDirection, 1.f);
+	AddMovementInput(MoveDir, 1.f);
 }
 
 void AMovableNPC::HandleWaiting()

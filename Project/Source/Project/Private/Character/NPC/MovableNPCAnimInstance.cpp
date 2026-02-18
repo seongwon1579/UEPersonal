@@ -10,6 +10,17 @@ void UMovableNPCAnimInstance::AnimNotify_EndFinished()
 	SetIdleCycleCompleted(true);
 }
 
+void UMovableNPCAnimInstance::SelectIdleSet() 
+{
+	if (IdleAnimData.Num() <= 0) return;
+
+	CurrentStartAnim = IdleAnimData[CurrentIndex].StartAnim;
+	CurrentLoopAnim = IdleAnimData[CurrentIndex].LoopAnim;
+	CurrentEndAnim = IdleAnimData[CurrentIndex].EndAnim;
+
+	CurrentIndex = (CurrentIndex + 1) % IdleAnimData.Num();
+}
+
 void UMovableNPCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	if (!Owner) return;

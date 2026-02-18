@@ -35,13 +35,7 @@ public:
 	virtual void AnimNotify_EndFinished();
 	
 	UPROPERTY(BlueprintReadOnly)
-	UAnimSequence* GreetingAnim;
-
-	UPROPERTY(BlueprintReadOnly)
-	UAnimSequence* TalkAnim;
-
-	UPROPERTY(BlueprintReadOnly)
-	UAnimSequence* BaseAnim;
+	UAnimSequence* CurrentBaseAnim;
 
 	UPROPERTY(BlueprintReadOnly)
 	UAnimSequence* CurrentStartAnim;
@@ -68,10 +62,12 @@ public:
 
 protected:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+	virtual void SelectIdleSet();
+	
 	float IdleBaseTimer = 0.f;
+	int32 CurrentIndex = 0;
 	
 private:
-	void SelectRandomIdleSet();
 	void UpdateBaseIdle(float DeltaSeconds);
 	void UpdateIdleVariation(float DeltaSeconds);
 	
@@ -79,6 +75,5 @@ private:
 	bool bIsDialogue = false;
 	bool bIsInDialogue = false;
 	float IdleSetTimer = 0.f;
-	int32 CurrentIndex = 0;
 	float IdleBaseDuration = 0.f;
 };

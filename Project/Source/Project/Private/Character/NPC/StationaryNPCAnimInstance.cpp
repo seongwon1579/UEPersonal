@@ -60,7 +60,7 @@ void UStationaryNPCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 }
 
 // 애니메이션을 가중치에 따라 랜덤으로 변경한다.
-void UStationaryNPCAnimInstance::SelectRandomIdleSet()
+void UStationaryNPCAnimInstance::SelectIdleSet()
 {
 	// 재생할 데이터가 없으면 early return
 	if (IdleAnimData.Num() <= 0) return;
@@ -105,7 +105,10 @@ void UStationaryNPCAnimInstance::UpdateBaseIdle(float DeltaSeconds)
 	if (IdleBaseTimer >= IdleBaseDuration)
 	{
 		IdleBaseTimer = 0.f;
-		SelectRandomIdleSet();
+		SelectIdleSet();
+		
+		if (IdleAnimData.Num() <= 0) return;
+		
 		CurrentIdlePhase = EIdlePhase::Start;
 	}
 }
@@ -114,7 +117,7 @@ void UStationaryNPCAnimInstance::UpdateBaseIdle(float DeltaSeconds)
 void UStationaryNPCAnimInstance::UpdateIdleVariation(float DeltaSeconds)
 {
 	if (CurrentIdlePhase != EIdlePhase::Loop) return;
-
+	
 	IdleSetTimer += DeltaSeconds;
 	
 	if (IdleSetTimer >= IdleAnimData[CurrentIndex].LoopDuration)
@@ -144,3 +147,4 @@ void UStationaryNPCAnimInstance::AnimNotify_EndFinished()
 {
 	CurrentIdlePhase = EIdlePhase::None;
 }
+

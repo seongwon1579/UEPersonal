@@ -24,9 +24,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USplineComponent* SplineComp;
-	
-	UPROPERTY(EditAnywhere, Category = "Movement")
-	float MoveSpeed = 150.f;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float RotationStrength = 300.f;
