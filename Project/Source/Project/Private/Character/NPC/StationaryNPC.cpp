@@ -31,7 +31,8 @@ void AStationaryNPC::Interact(AActor* OtherActor)
 {
 	SetWidgetVisibility(false);
 	
-	if (IDialogueInstigator* DialogueInstigator = Cast<IDialogueInstigator>(OtherActor))
+	if (IDialogueInstigator* DialogueInstigator = 
+		Cast<IDialogueInstigator>(OtherActor))
 	{
 		DialogueInstigator->StartDialogueWith(this);
 	}

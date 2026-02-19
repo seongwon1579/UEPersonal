@@ -145,10 +145,13 @@ void UObjectPlacementComponent::UpdatePlacementPreview()
 {
 	if (!PlayerController || !HomeGoods) return;
 
+	// WorldLocation: 마우스가 가리키는 3D 시작점
+	// WorldDirection: 그 지점에서 화면 안쪽으로 향하는 방향 벡터 
 	FVector WorldLocation, WorldDirection;
 	PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
 
 	FVector Start = WorldLocation;
+	// 마우스 지점에서 안쪽으로 향하는 방향벡터의 magnitude 만큼의 벡터 산출
 	FVector End = Start + WorldDirection * PlacementRange;
 
 	FHitResult Hit;
@@ -157,6 +160,7 @@ void UObjectPlacementComponent::UpdatePlacementPreview()
 	QueryParams.AddIgnoredActor(HomeGoods);
 	QueryParams.AddIgnoredActor(GetOwner());
 
+	// 라인 트레이싱을 쏴서 hit 된 곳에 객체를 배치 시도
 	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, QueryParams);
 
 	if (bHit)

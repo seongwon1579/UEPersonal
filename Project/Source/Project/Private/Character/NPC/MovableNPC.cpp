@@ -60,7 +60,8 @@ void AMovableNPC::MoveAlongSpline(float DeltaSeconds)
 	
 	// FindInputKeyClosestToWorldLocation : 스플라인 포인트 사이의 보간 인덱스
 	// GetDistanceAlongSplineAtSplineInputKey : 현재 거리
-	CurrentDistance = SplineComp->GetDistanceAlongSplineAtSplineInputKey(SplineComp->FindInputKeyClosestToWorldLocation(Location));
+	CurrentDistance = SplineComp->GetDistanceAlongSplineAtSplineInputKey(
+		SplineComp->FindInputKeyClosestToWorldLocation(Location));
 
 	bool bReachedEnd = bMovingForward && CurrentDistance >= SplineLength - 30.f;
 	bool bReachedStart = !bMovingForward && CurrentDistance <= 30.f;

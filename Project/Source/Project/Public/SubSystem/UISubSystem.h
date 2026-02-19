@@ -46,7 +46,8 @@ public:
 	void HidePlaceActorWidget();
 
 	// 복싱
-	void ShowBoxingPatternWidget(UBoxingActivityComponent* InBoxingActivityComponent);
+	void 
+	ShowBoxingPatternWidget(UBoxingActivityComponent* InBoxingActivityComponent);
 	void HideBoxingPatternWidget();
 
 	// // 인터렉션

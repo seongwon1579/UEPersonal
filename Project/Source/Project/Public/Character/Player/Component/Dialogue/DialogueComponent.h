@@ -25,13 +25,13 @@ public:
 	void StartDialogueWith(AActor* NPCActor);
 	void EndDialogue();
 	
-	void OnChoiceInput(int32 OptionIndex);
 	bool IsInDialogue() const {return bOnDialogue;}
 
 private:
 	virtual void BeginPlay() override;
 	
 	void HandleDialogueResponse(const FDialogueResult& Result);
+	void OnChoiceInput(int32 OptionIndex);
 	void ShowNextNode();
 	
 	void ConfigureInputMode(bool IsUIMode);

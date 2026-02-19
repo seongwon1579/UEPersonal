@@ -74,7 +74,6 @@ void UStationaryNPCAnimInstance::SelectIdleSet()
 
 	// 총 가중치에서 랜덤으로 재생할 가중치를 구한다.
 	float CurrentWeight = FMath::FRandRange(0.f, TotalWeight);
-	//UE_LOG(LogTemp, Warning, TEXT("Weight: %f"),Random);
 
 	float Accumulated = 0.f;
 
@@ -98,7 +97,6 @@ void UStationaryNPCAnimInstance::SelectIdleSet()
 void UStationaryNPCAnimInstance::UpdateBaseIdle(float DeltaSeconds)
 {
 	if (CurrentIdlePhase != EIdlePhase::None) return;
-	//if (bIsInDialogue) return; 
 	
 	IdleBaseTimer += DeltaSeconds;
 

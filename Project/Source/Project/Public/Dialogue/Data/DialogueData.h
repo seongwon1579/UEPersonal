@@ -12,6 +12,8 @@ enum class EDialogueReaction : uint8
 	Surprised,
 	Shy,
 	Happy,
+	Speak,
+	WaveHands,
 	End,
 };
 

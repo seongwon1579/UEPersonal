@@ -49,7 +49,8 @@ void APunchingBag::Interact(AActor* Interactor)
 {
 	SetWidgetVisibility(false);
 	
-	IBoxingActivityInterface* BoxingInterface = Cast<IBoxingActivityInterface>(Interactor);
+	IBoxingActivityInterface* BoxingInterface = 
+		Cast<IBoxingActivityInterface>(Interactor);
 	if (!BoxingInterface) return;
 
 	if (BoxingInterface->IsBoxing()) return;

@@ -84,11 +84,13 @@ void UDialogueComponent::HandleDialogueResponse(const FDialogueResult& Result)
 	
 	if (Result.bIsEnd)
 	{
-		GetWorld()->GetTimerManager().SetTimer(ResponseTimerHandle, this, &UDialogueComponent::EndDialogue, 3.f, false);
+		GetWorld()->GetTimerManager().SetTimer(ResponseTimerHandle, this, 
+			&UDialogueComponent::EndDialogue, 3.f, false);
 	}
 	else
 	{
-		GetWorld()->GetTimerManager().SetTimer(ResponseTimerHandle, this, &UDialogueComponent::ShowNextNode, 3.f,
+		GetWorld()->GetTimerManager().SetTimer(ResponseTimerHandle, this, 
+			&UDialogueComponent::ShowNextNode, 3.f,
 		                                       false);
 	}
 }
@@ -97,7 +99,8 @@ void UDialogueComponent::ShowNextNode()
 {
 	if (!DialogueWidget || !bOnDialogue) return;
 	
-	DialogueWidget->UpdateDialogueDisplay(DialogueResponder->GetNextNodeData());
+	DialogueWidget->UpdateDialogueDisplay(
+		DialogueResponder->GetNextNodeData());
 }
 
 void UDialogueComponent::ConfigureInputMode(bool IsUIMode)

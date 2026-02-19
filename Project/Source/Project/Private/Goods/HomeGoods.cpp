@@ -58,7 +58,9 @@ void AHomeGoods::CheckSpawn()
 	FBox LocalBox = StaticMeshComponent->GetStaticMesh()->GetBoundingBox();
 	FVector BoxExtent = LocalBox.GetExtent() * 0.98f;
 
+	// 약간 위로 배치
 	Location.Z += BoxExtent.Z + 10.f;
+	// Z축 크기를 약간 줄임
 	BoxExtent.Z *= 0.9f;
 
 	FCollisionQueryParams QueryParams;
@@ -83,6 +85,7 @@ void AHomeGoods::CheckSpawn()
 	{
 		StaticMeshComponent->SetMaterial(i, PreviewMaterial);
 	}
+	// 배치를 결정
 	bCanSpawn = !bIsOverlapping;
 	
 	// 디버그 모드 일 경우 맵 상에 콜리전이 보이도록 한다.

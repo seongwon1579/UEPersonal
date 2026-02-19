@@ -51,7 +51,4 @@ private:
 	
 	UPROPERTY(meta =(BindWidget))
 	UImage* Punch_Direction_Image;
-	
-	UPROPERTY()
-	UBoxingActivityComponent* BoxingActivityComponent;
 };
